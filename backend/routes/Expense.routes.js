@@ -1,7 +1,6 @@
 import express from "express";
 import authenticationMiddleware from "../middlewares/authMiddleware.js";
 import { expenseSchema } from "../validators/expenseSchema.js";
-// import CategoryModel from "../model/Category.model.js";
 import { z } from "zod/v4";
 import ExpenseModel from "../model/Expense.model.js";
 
@@ -15,11 +14,11 @@ router.get("/", async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
   try {
-    const expenseList = await ExpenseModel.aggregate([
+    const [result] = await ExpenseModel.aggregate([
       { $match: { tenantId } },
       {
         $facet: {
-          expense: [
+          expenses: [
             { $sort: { date: -1 } },
             { $skip: skip },
             { $limit: limit },
@@ -28,10 +27,15 @@ router.get("/", async (req, res) => {
         },
       },
     ]);
+    const expenseList = result.expenses;
+    const total = result.total[0]?.count || 0;
     res.status(200).json({
       success: true,
       message: "Expense list",
-      data: expenseList,
+      data: {
+        expenseList,
+        total,
+      },
     });
   } catch (error) {
     console.log(error);
