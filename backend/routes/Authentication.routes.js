@@ -28,9 +28,13 @@ router.post("/sign-up", async (req, res) => {
       password: hashPassword,
       tenantId,
     });
-    const token = jwt.sign({ tenantId }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign(
+      { username, email, tenantId },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
     return res
       .status(201)
       .json({ success: true, message: "User registered.", token });
@@ -60,10 +64,15 @@ router.post("/sign-in", async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
     const token = jwt.sign(
-      { tenantId: userData.tenantId },
+      {
+        username: userData.username,
+        email: userData.email,
+        tenantId: userData.tenantId,
+      },
       process.env.JWT_SECRET,
       {
         expiresIn: "1d",
+        // expiresIn: 1000,
       }
     );
     return res
