@@ -28,7 +28,7 @@ function Login() {
         alert(response.error);
       } else {
         login(response.data);
-        navigate("/expenses");
+        navigate("/");
       }
     } catch (error) {
       console.error("Login error", error);
