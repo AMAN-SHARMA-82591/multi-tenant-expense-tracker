@@ -3,6 +3,7 @@ import { z } from "zod/v4";
 import ExpenseModel from "../model/Expense.model.js";
 import { expenseSchema } from "../validators/expenseSchema.js";
 import authenticationMiddleware from "../middlewares/authMiddleware.js";
+import { YEAR } from "../utils/constants.js";
 
 const router = express.Router();
 
@@ -40,6 +41,61 @@ router.get("/", async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(500).send("Internal server error.");
+  }
+});
+
+router.get("/generate-report", async (req, res) => {
+  const tenantId = req.tenantId;
+  try {
+    const monthParam = Number(req.query.month);
+
+    if (isNaN(monthParam) || monthParam < 1 || monthParam > 12) {
+      return res.status(400).json({ error: "Month must be between 1 and 12" });
+    }
+
+    const startDate = new Date(YEAR, monthParam - 1, 1);
+    const endDate = new Date(YEAR, monthParam, 0);
+
+    const [report] = await ExpenseModel.aggregate([
+      {
+        $match: {
+          tenantId,
+          date: { $gte: startDate, $lte: endDate },
+        },
+      },
+      {
+        $group: {
+          _id: "$category",
+          total: { $sum: "$amount" },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { total: -1 },
+      },
+      {
+        $group: {
+          _id: null,
+          totalSpend: { $sum: "$total" },
+          topCategory: { $first: "$_id" },
+          topCategorySpend: { $first: "$total" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          totalSpend: 1,
+          topCategory: 1,
+          topCategorySpend: 1,
+        },
+      },
+    ]);
+
+    res.status(200).json({ success: true, report });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Something went wrong", details: err.message });
   }
 });
 
