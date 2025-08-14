@@ -1,4 +1,4 @@
-## Node version: 22.17.0
+### Node version: 22.17.0
 
 # Multi-Tenant Expense Tracker
 
@@ -154,12 +154,6 @@ multi-tenant-expense-tracker/
 ## Contributing
 
 Pull requests and issues are welcome!
-
----
-
-## License
-
-MIT
 
 ---
 
