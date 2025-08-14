@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router";
 import { useAuth } from "./utils/contextApi";
 import axiosInstance from "./utils/AxiosInstance";
+import { registerSchema } from "./utils/formValidate";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -14,20 +15,22 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.email || !formData.password) {
-      alert("Invalid credentials");
-      return;
-    }
     try {
-      const data = await axiosInstance.post("/auth/sign-up", formData);
-      if (data.error) {
-        alert(data.error);
+      await registerSchema.validate(formData, { abortEarly: false });
+      const response = await axiosInstance.post("/auth/sign-up", formData);
+      if (response.error) {
+        alert(response.error);
       } else {
-        login(data);
+        login(response.data);
         navigate("/");
       }
     } catch (error) {
-      console.error("Login error", error);
+      if (error.inner) {
+        const messages = error.inner.map((err) => err.message).join("\n");
+        alert(messages);
+      } else {
+        alert(error.message);
+      }
     }
   };
 

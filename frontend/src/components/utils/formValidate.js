@@ -1,5 +1,34 @@
 import * as yup from "yup";
 
+export const registerSchema = yup.object({
+  username: yup
+    .string()
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name must be under 50 characters")
+    .required("Name is required"),
+
+  email: yup
+    .string()
+    .trim()
+    .email("Invalid email format")
+    .required("Email is required"),
+
+  password: yup
+    .string()
+    .min(5, "Password must be at least 5 characters")
+    .required("Password is required"),
+});
+
+export const loginSchema = yup.object({
+  email: yup
+    .string()
+    .trim()
+    .email("Invalid email format")
+    .required("Email is required"),
+  password: yup.string().required("Password is required"),
+});
+
 export const createExpenseSchema = yup.object().shape({
   title: yup
     .string()

@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router";
 import { useAuth } from "./utils/contextApi";
 import axiosInstance from "./utils/AxiosInstance";
+import { loginSchema } from "./utils/formValidate";
 
 function Login() {
   const [formData, setFormData] = useState({
-    email: "aman@test2.com",
-    password: "123",
+    email: "",
+    password: "",
   });
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -18,11 +19,8 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.email || !formData.password) {
-      alert("Invalid credentials");
-      return;
-    }
     try {
+      await loginSchema.validate(formData, { abortEarly: false });
       const response = await axiosInstance.post("/auth/sign-in", formData);
       if (response.error) {
         alert(response.error);
@@ -31,7 +29,12 @@ function Login() {
         navigate("/");
       }
     } catch (error) {
-      console.error("Login error", error);
+      if (error.inner) {
+        const messages = error.inner.map((err) => err.message).join("\n");
+        alert(messages);
+      } else {
+        alert(error.message);
+      }
     }
   };
 
