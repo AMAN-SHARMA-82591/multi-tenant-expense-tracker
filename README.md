@@ -151,12 +151,6 @@ multi-tenant-expense-tracker/
 
 ---
 
-## Contributing
-
-Pull requests and issues are welcome!
-
----
-
 ## Credits
 
 - [React](https://react.dev/)
