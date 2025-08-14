@@ -1,4 +1,4 @@
-export default function randomExpenseGenerate() {
+export default function randomExpenseGenerate(tenantId) {
   const titles = [
     "Groceries",
     "Dinner with friends",
@@ -25,10 +25,6 @@ export default function randomExpenseGenerate() {
 
   const expenses = [];
 
-  const currentYear = new Date().getFullYear();
-  const startOfYear = new Date(currentYear, 0, 1).getTime();
-  const endOfYear = new Date(currentYear, 11, 31).getTime();
-
   for (let i = 0; i < 50; i++) {
     const randomAmount = (Math.random() * 490 + 10).toFixed(2);
 
@@ -36,8 +32,9 @@ export default function randomExpenseGenerate() {
     const randomCategory =
       categories[Math.floor(Math.random() * categories.length)];
 
-    const randomTimestamp =
-      startOfYear + Math.random() * (endOfYear - startOfYear);
+    const start = new Date(2025, 0, 1).getTime(); // Jan 1, 2025
+    const end = new Date().getTime(); // current date
+    const randomTimestamp = start + Math.random() * (end - start);
     const randomDate = new Date(randomTimestamp).toISOString();
 
     const expense = {
@@ -45,7 +42,7 @@ export default function randomExpenseGenerate() {
       category: randomCategory,
       amount: parseFloat(randomAmount),
       date: randomDate,
-      tenantId: req.tenantId,
+      tenantId,
     };
 
     expenses.push(expense);

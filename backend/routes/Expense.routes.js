@@ -1,8 +1,8 @@
 import express from "express";
-import authenticationMiddleware from "../middlewares/authMiddleware.js";
-import { expenseSchema } from "../validators/expenseSchema.js";
 import { z } from "zod/v4";
 import ExpenseModel from "../model/Expense.model.js";
+import { expenseSchema } from "../validators/expenseSchema.js";
+import authenticationMiddleware from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
