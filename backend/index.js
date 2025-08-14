@@ -1,9 +1,9 @@
 import express from "express";
 import cors from "cors";
-import authRoute from "./routes/Authentication.routes.js";
+import connectDB from "./config/db.js";
 import userRoute from "./routes/User.routes.js";
 import expenseRoute from "./routes/Expense.routes.js";
-import connectDB from "./config/db.js";
+import authRoute from "./routes/Authentication.routes.js";
 import "dotenv/config";
 const app = express();
 
@@ -20,6 +20,13 @@ app.use(
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/expense", expenseRoute);
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  return res
+    .status(err.statusCode || 500)
+    .json({ success: false, message: err.message || "Something went wrong." });
+});
 
 const start = async () => {
   try {

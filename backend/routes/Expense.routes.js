@@ -1,20 +1,23 @@
 import express from "express";
 import { z } from "zod/v4";
+import ApiError from "../utils/apiError.js";
+import { YEAR } from "../utils/constants.js";
+import asyncHandler from "../utils/asyncHandler.js";
 import ExpenseModel from "../model/Expense.model.js";
 import { expenseSchema } from "../validators/expenseSchema.js";
 import authenticationMiddleware from "../middlewares/authMiddleware.js";
-import { YEAR } from "../utils/constants.js";
 
 const router = express.Router();
 
 router.use(authenticationMiddleware);
 
-router.get("/", async (req, res) => {
-  const tenantId = req.tenantId;
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
-  try {
+router.get(
+  "/",
+  asyncHandler(async (req, res) => {
+    const tenantId = req.tenantId;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
     const [result] = await ExpenseModel.aggregate([
       { $match: { tenantId } },
       {
@@ -38,81 +41,87 @@ router.get("/", async (req, res) => {
         total,
       },
     });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).send("Internal server error.");
-  }
-});
+  })
+);
 
 router.get("/generate-report", async (req, res) => {
   const tenantId = req.tenantId;
-  try {
-    const monthParam = Number(req.query.month);
+  const monthParam = Number(req.query.month);
 
-    if (isNaN(monthParam) || monthParam < 1 || monthParam > 12) {
-      return res.status(400).json({ error: "Month must be between 1 and 12" });
-    }
-
-    const startDate = new Date(YEAR, monthParam - 1, 1);
-    const endDate = new Date(YEAR, monthParam, 0);
-
-    const [report] = await ExpenseModel.aggregate([
-      {
-        $match: {
-          tenantId,
-          date: { $gte: startDate, $lte: endDate },
-        },
-      },
-      {
-        $group: {
-          _id: "$category",
-          total: { $sum: "$amount" },
-          count: { $sum: 1 },
-        },
-      },
-      {
-        $sort: { total: -1 },
-      },
-      {
-        $group: {
-          _id: null,
-          totalSpend: { $sum: "$total" },
-          topCategory: { $first: "$_id" },
-          topCategorySpend: { $first: "$total" },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          totalSpend: 1,
-          topCategory: 1,
-          topCategorySpend: 1,
-        },
-      },
-    ]);
-
-    res.status(200).json({ success: true, report });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ error: "Something went wrong", details: err.message });
+  if (isNaN(monthParam) || monthParam < 1 || monthParam > 12) {
+    throw new ApiError("Month must be between 1 and 12", 400);
   }
+
+  const startDate = new Date(YEAR, monthParam - 1, 1);
+  const endDate = new Date(YEAR, monthParam, 0);
+
+  const [report] = await ExpenseModel.aggregate([
+    {
+      $match: {
+        tenantId,
+        date: { $gte: startDate, $lte: endDate },
+      },
+    },
+    {
+      $group: {
+        _id: "$category",
+        total: { $sum: "$amount" },
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $sort: { total: -1 },
+    },
+    {
+      $group: {
+        _id: null,
+        totalSpend: { $sum: "$total" },
+        topCategory: { $first: "$_id" },
+        topCategorySpend: { $first: "$total" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        totalSpend: 1,
+        topCategory: 1,
+        topCategorySpend: 1,
+      },
+    },
+  ]);
+  if (!report) {
+    return res
+      .status(200)
+      .json({
+        success: true,
+        report: null,
+        message: "No expenses found for this month.",
+      });
+  }
+
+  return res.status(200).json({ success: true, report });
 });
 
-router.post("/", async (req, res) => {
-  const { success, data, error } = expenseSchema.safeParse(req.body);
-  if (!success) {
-    return res.status(400).json({ error: z.flattenError(error).fieldErrors });
-  }
-  try {
+router.post(
+  "/",
+  asyncHandler(async (req, res) => {
+    const { success, data, error } = expenseSchema.safeParse(req.body);
+    if (!success) {
+      return res.status(400).json({ error: z.flattenError(error).fieldErrors });
+    }
     const { title, category, amount, date } = data;
-    // const isCategoryExists = CategoryModel.findOne({ title: category });
-    // if (!isCategoryExists) {
-    //   await CategoryModel.create({
-    //     title: category,
-    //     description: null,
-    //   });
-    // }
+
+    const duplicateExpense = await ExpenseModel.findOne({
+      title,
+      date,
+      tenantId: req.tenantId,
+    });
+    if (duplicateExpense) {
+      throw new ApiError(
+        "Expense already exists for this date and title.",
+        409
+      );
+    }
 
     const expenseData = await ExpenseModel.create({
       title,
@@ -121,15 +130,12 @@ router.post("/", async (req, res) => {
       date,
       tenantId: req.tenantId,
     });
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "New Expense created.",
       data: expenseData,
     });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).send("Internal server error.");
-  }
-});
+  })
+);
 
 export default router;

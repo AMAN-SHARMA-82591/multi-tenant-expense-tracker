@@ -4,6 +4,8 @@ const GenerateReport = ({
   reportDialog,
   handleSetReportDialog,
 }) => {
+  const formattedTotalSpend = report?.totalSpend.toFixed(2) || 0;
+  const formattedTopCategorySpend = report?.topCategorySpend.toFixed(2);
   return (
     <div
       style={!reportDialog ? { display: "none" } : {}}
@@ -11,10 +13,17 @@ const GenerateReport = ({
     >
       <div className="relative bg-white p-8 rounded-lg shadow-xl w-11/12 max-w-lg">
         <h3 className="text-xl font-semibold mb-4">Generated Report</h3>
-        <p>
-          You spend {report?.totalSpend} in {selectedMonth}, mostly on{" "}
-          {report?.topCategory} ({report?.topCategorySpend})
-        </p>
+        {report ? (
+          <p>
+            You've spend <strong>${formattedTotalSpend}</strong> in{" "}
+            <strong>{selectedMonth} </strong>, mostly on{" "}
+            <strong>
+              {report?.topCategory} (${formattedTopCategorySpend})
+            </strong>
+          </p>
+        ) : (
+          <p>No expenses found for this month.</p>
+        )}
         <div className="flex justify-end space-x-4">
           <button
             type="button"

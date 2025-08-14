@@ -11,7 +11,7 @@ const inititalValues = {
 
 const NewExpenseDialog = ({
   paginate,
-  openDialog,
+  openCreateDialog,
   fetchExpenseList,
   handleOpenCreateDialog,
 }) => {
@@ -76,7 +76,7 @@ const NewExpenseDialog = ({
 
   return (
     <div
-      style={!openDialog ? { display: "none" } : {}}
+      style={!openCreateDialog ? { display: "none" } : {}}
       className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50"
     >
       <div className="relative bg-white p-8 rounded-lg shadow-xl w-11/12 max-w-lg">
