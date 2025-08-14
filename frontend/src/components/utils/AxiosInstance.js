@@ -1,5 +1,5 @@
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import { isTokenExpired } from "../utils/auth";
 
 let logoutHandler = () => {};
 
@@ -20,7 +20,6 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       alert("Session expired");
-      localStorage.removeItem("token");
       logoutHandler();
     }
     return Promise.reject(error);
@@ -30,9 +29,7 @@ axiosInstance.interceptors.response.use(
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
-    const { exp } = jwtDecode(token);
-    const now = Math.floor(Date.now() / 1000);
-    if (exp < now) {
+    if (isTokenExpired(token)) {
       logoutHandler();
       throw new Error("Token expired");
     }

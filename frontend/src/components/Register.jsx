@@ -24,7 +24,7 @@ function Register() {
         alert(data.error);
       } else {
         login(data);
-        navigate("/expenses");
+        navigate("/");
       }
     } catch (error) {
       console.error("Login error", error);
