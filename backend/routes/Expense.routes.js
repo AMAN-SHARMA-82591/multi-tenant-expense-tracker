@@ -4,6 +4,8 @@ import ApiError from "../utils/apiError.js";
 import { YEAR } from "../utils/constants.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ExpenseModel from "../model/Expense.model.js";
+import { generateAISummary } from "../config/geminiAi.js";
+import buildExpenseSummaryPrompt from "../utils/aiPrompt.js";
 import { expenseSchema } from "../validators/expenseSchema.js";
 import authenticationMiddleware from "../middlewares/authMiddleware.js";
 
@@ -78,6 +80,12 @@ router.get("/generate-report", async (req, res) => {
         totalSpend: { $sum: "$total" },
         topCategory: { $first: "$_id" },
         topCategorySpend: { $first: "$total" },
+        categories: {
+          $push: {
+            category: "$_id",
+            spend: "$total",
+          },
+        },
       },
     },
     {
@@ -86,20 +94,22 @@ router.get("/generate-report", async (req, res) => {
         totalSpend: 1,
         topCategory: 1,
         topCategorySpend: 1,
+        categories: 1,
       },
     },
   ]);
   if (!report) {
-    return res
-      .status(200)
-      .json({
-        success: true,
-        report: null,
-        message: "No expenses found for this month.",
-      });
+    return res.status(200).json({
+      success: true,
+      report: null,
+      message: "No expenses found for this month.",
+    });
   }
 
-  return res.status(200).json({ success: true, report });
+  const generatedSummaryPrompt = buildExpenseSummaryPrompt(report);
+  const summary = await generateAISummary(generatedSummaryPrompt);
+
+  return res.status(200).json({ success: true, summary });
 });
 
 router.post(
