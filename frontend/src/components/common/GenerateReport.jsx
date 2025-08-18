@@ -1,11 +1,20 @@
+import Markdown from "react-markdown";
+
 const GenerateReport = ({
-  report,
-  selectedMonth,
+  isLoading,
   reportDialog,
+  reportSummary,
   handleSetReportDialog,
 }) => {
-  const formattedTotalSpend = report?.totalSpend.toFixed(2) || 0;
-  const formattedTopCategorySpend = report?.topCategorySpend.toFixed(2);
+  let content;
+  if (isLoading) {
+    content = <p>Loading. Please wait</p>;
+  } else if (!reportSummary) {
+    content = <p>No expenses found for this month.</p>;
+  } else {
+    content = <Markdown>{reportSummary}</Markdown>;
+  }
+
   return (
     <div
       style={!reportDialog ? { display: "none" } : {}}
@@ -13,17 +22,7 @@ const GenerateReport = ({
     >
       <div className="relative bg-white p-8 rounded-lg shadow-xl w-11/12 max-w-lg">
         <h3 className="text-xl font-semibold mb-4">Generated Report</h3>
-        {report ? (
-          <p>
-            You've spend <strong>${formattedTotalSpend}</strong> in{" "}
-            <strong>{selectedMonth} </strong>, mostly on{" "}
-            <strong>
-              {report?.topCategory} (${formattedTopCategorySpend})
-            </strong>
-          </p>
-        ) : (
-          <p>No expenses found for this month.</p>
-        )}
+        {content}
         <div className="flex justify-end space-x-4">
           <button
             type="button"
