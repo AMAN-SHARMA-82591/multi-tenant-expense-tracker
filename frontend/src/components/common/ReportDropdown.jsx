@@ -1,11 +1,11 @@
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { MONTH } from "../utils/constants";
 import GenerateReport from "./GenerateReport";
 import axiosInstance from "../utils/AxiosInstance";
 
 const ReportDropdown = () => {
-  const [report, setReport] = useState(null);
-  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [reportSummary, setReportSummary] = useState(null);
   const [reportDialog, setOpenReportDialog] = useState(false);
   const [isReportDropdownOpen, setIsReportDropdownOpen] = useState(false);
 
@@ -16,27 +16,27 @@ const ReportDropdown = () => {
     return MONTH.slice(0, currentMonth + 1);
   };
 
-  const handleGenerateReport = async (monthIndex, monthName) => {
-    setIsReportDropdownOpen(false);
+  const handleGenerateReport = async (monthIndex) => {
+    setIsLoading(true);
+    setOpenReportDialog(true);
     try {
       const response = await axiosInstance.get(
         `/expense/generate-report?month=${monthIndex}`
       );
-      setReport(response.data?.report);
+      setReportSummary(response.data?.report);
       if (!response.data) {
         alert("Error generating report.");
       }
     } catch (error) {
       console.error("Error generating report.", error);
     } finally {
-      setSelectedMonth(monthName);
-      setOpenReportDialog(true);
+      setIsLoading(false);
     }
   };
 
   const handleSetReportDialog = () => {
-    setSelectedMonth(null);
     setOpenReportDialog(false);
+    setIsReportDropdownOpen(false);
   };
 
   return (
@@ -75,7 +75,7 @@ const ReportDropdown = () => {
               {getPastMonths().map((month, index) => (
                 <div
                   key={index}
-                  onClick={() => handleGenerateReport(index + 1, month)}
+                  onClick={() => handleGenerateReport(index + 1)}
                   className="block font-bold text-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 cursor-pointer"
                   role="menuitem"
                 >
@@ -87,9 +87,9 @@ const ReportDropdown = () => {
         )}
         {reportDialog && (
           <GenerateReport
-            report={report}
+            isLoading={isLoading}
             reportDialog={reportDialog}
-            selectedMonth={selectedMonth}
+            reportSummary={reportSummary}
             handleSetReportDialog={handleSetReportDialog}
           />
         )}
@@ -98,4 +98,4 @@ const ReportDropdown = () => {
   );
 };
 
-export default ReportDropdown;
+export default React.memo(ReportDropdown);

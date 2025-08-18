@@ -107,9 +107,9 @@ router.get("/generate-report", async (req, res) => {
   }
 
   const generatedSummaryPrompt = buildExpenseSummaryPrompt(report);
-  const summary = await generateAISummary(generatedSummaryPrompt);
+  const reportSummary = await generateAISummary(generatedSummaryPrompt);
 
-  return res.status(200).json({ success: true, summary });
+  return res.status(200).json({ success: true, report: reportSummary });
 });
 
 router.post(
