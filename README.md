@@ -1,9 +1,8 @@
-### Node version: 22.17.0
-
 # Multi-Tenant Expense Tracker
 
 A full-stack expense tracking application supporting multiple tenants (users/organizations).  
-Built with **React (Vite)** for the frontend and **Node.js/Express/MongoDB** for the backend.
+Built with **React (Vite)** for the frontend and **Node.js/Express/MongoDB** for the backend.  
+Now includes **Gemini AI integration** for generating monthly expense summaries!
 
 ---
 
@@ -11,12 +10,13 @@ Built with **React (Vite)** for the frontend and **Node.js/Express/MongoDB** for
 
 - **User Authentication** (JWT, multi-tenant support)
 - **Expense CRUD** (Create, Read, Update, Delete)
-- **Expense Reports** (monthly, top category)
+- **Expense Reports** (monthly, top category, AI-generated summary)
 - **Pagination**
 - **Responsive UI** with TailwindCSS
 - **Validation** (Zod for backend, form validation on frontend)
 - **Protected Routes** (backend middleware)
 - **Error Handling** (custom error classes, consistent responses)
+- **Gemini AI Integration** (Google Generative Language API)
 
 ---
 
@@ -26,6 +26,8 @@ Built with **React (Vite)** for the frontend and **Node.js/Express/MongoDB** for
 - **Backend:** Node.js, Express, MongoDB, Mongoose, Zod
 - **Auth:** JWT
 - **Validation:** Zod (backend), custom (frontend)
+- **AI:** Google Gemini (Generative Language API)
+- Node version: 22.17.0
 
 ---
 
@@ -58,6 +60,7 @@ PORT=5000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 ALLOWED_ORIGINS=http://localhost:5173
+GOOGLE_API_KEY=your_gemini_api_key_here
 ```
 
 #### c. Start the backend server
@@ -99,6 +102,41 @@ npm run dev
 
 ---
 
+## Gemini AI Integration
+
+### How to Get Your Google Gemini API Key
+
+1. **Go to [Google AI Studio](https://aistudio.google.com/)**
+
+   - Sign in with your Google account.
+
+2. **Create a new API key**
+
+   - Click on your profile icon (top right) and select "API Keys".
+   - Click "Create API Key".
+   - Copy the generated API key.
+
+3. **Enable Generative Language API (if needed)**
+
+   - Go to [Google Cloud Console](https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com).
+   - Make sure the "Generative Language API" is enabled for your project.
+
+4. **Add the API key to your backend `.env` file**
+
+   ```
+   GOOGLE_API_KEY=your_gemini_api_key_here
+   ```
+
+5. **Restart your backend server after updating `.env`**
+
+**Note:**
+
+- Only API keys from Google AI Studio or Generative Language API will work.
+- Do not use keys from other Google APIs (Maps, Firebase, etc.).
+- If you set restrictions on your key, ensure your backend matches those restrictions.
+
+---
+
 ## Folder Structure
 
 ```
@@ -115,7 +153,7 @@ multi-tenant-expense-tracker/
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── ExpenseList.jsx
-│   │   │   ├── expenses/ExpenseTable.jsx
+│   │   │   ├── common/ExpenseTable.jsx
 │   │   │   ├── common/ReportDropdown.jsx
 │   │   │   ├── common/NewExpenseDialog.jsx
 │   │   │   ├── common/GenerateReport.jsx
@@ -139,7 +177,7 @@ multi-tenant-expense-tracker/
 
 - `GET /api/v1/expense?page=1&limit=10` — Get paginated expenses
 - `POST /api/v1/expense` — Create new expense
-- `GET /api/v1/expense/generate-report?month=8` — Get monthly report
+- `GET /api/v1/expense/generate-report?month=8` — Get monthly report (with Gemini AI summary)
 
 ---
 
@@ -157,4 +195,3 @@ multi-tenant-expense-tracker/
 - [Express](https://expressjs.com/)
 - [MongoDB](https://www.mongodb.com/)
 - [TailwindCSS](https://tailwindcss.com/)
-- [Zod](https://zod.dev/)
