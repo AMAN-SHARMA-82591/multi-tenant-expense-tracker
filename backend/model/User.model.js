@@ -1,35 +1,35 @@
 import { model, Schema } from "mongoose";
+import { emailRegex, tenantIdRegex } from "../utils/constants.js";
 
 const UserSchema = new Schema(
   {
     username: {
       type: String,
-      required: true,
-      minLength: [
-        3,
-        "Username field should a string with at least three characters",
-      ],
+      required: [true, "Username is required"],
+      trim: true,
+      minlength: [3, "Username must be at least 3 characters"],
+      maxlength: [100, "Username must be at most 100 characters"],
     },
     email: {
       type: String,
-      required: true,
+      required: [true, "Email is required"],
+      trim: true,
+      lowercase: true,
       unique: true,
-      match: [
-        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/,
-        "Please enter a valid email",
-      ],
+      match: [emailRegex, "Please enter a valid email"],
+      maxlength: [100, "Email must be at most 100 characters"],
     },
     password: {
       type: String,
-      minLength: 4,
-      required: true,
+      required: [true, "Password is required"],
+      minlength: [4, "Password must be at least 4 characters"],
+      maxlength: [100, "Password must be at most 100 characters"],
     },
     tenantId: {
       type: String,
-      required: true,
+      required: [true, "Tenant ID is required"],
       unique: true,
-      match:
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+      match: [tenantIdRegex, "Invalid tenant ID format"],
     },
   },
   {
