@@ -10,11 +10,13 @@ function Register() {
     email: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       await registerSchema.validate(formData, { abortEarly: false });
       const response = await axiosInstance.post("/auth/sign-up", formData);
@@ -31,6 +33,8 @@ function Register() {
       } else {
         alert(error.message);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,6 +50,7 @@ function Register() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <input
+              required
               type="text"
               name="username"
               placeholder="Username"
@@ -56,9 +61,11 @@ function Register() {
           </div>
           <div>
             <input
+              required
               type="email"
               name="email"
               placeholder="Email"
+              autoComplete="email"
               value={formData.email}
               onChange={handleChange}
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -66,19 +73,26 @@ function Register() {
           </div>
           <div>
             <input
+              required
               type="password"
               name="password"
               placeholder="Password"
-              value={formData.password}
               onChange={handleChange}
+              value={formData.password}
+              autoComplete="current-password"
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-colors"
+            className={`w-full py-2 rounded-md transition-colors ${
+              loading
+                ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+            disabled={loading}
           >
-            Register
+            {!loading ? "Register" : "loading"}
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">

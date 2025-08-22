@@ -26,7 +26,10 @@ export const loginSchema = yup.object({
     .trim()
     .email("Invalid email format")
     .required("Email is required"),
-  password: yup.string().required("Password is required"),
+  password: yup
+    .string()
+    .min(5, "Password must be at least 5 characters")
+    .required("Password is required"),
 });
 
 export const createExpenseSchema = yup.object().shape({
