@@ -20,7 +20,7 @@ export const expenseSchema = z.object({
       required_error: "Amount is required",
     })
     .min(1, "Amount must be greater than 0")
-    .max(100000, "Amount must be less than ₹1,00,000"),
+    .max(100000, "Amount must be less than $1,00,000"),
 
   date: z.string().refine(
     (val) => {
