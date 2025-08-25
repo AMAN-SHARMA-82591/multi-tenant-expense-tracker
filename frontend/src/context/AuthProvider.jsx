@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import { AuthContext } from "../utils/contextApi";
-import { setLogoutHandler } from "../utils/AxiosInstance";
-import { isTokenExpired } from "../utils/auth";
+import { AuthContext } from "../components/utils/contextApi";
+import { setLogoutHandler } from "../components/utils/AxiosInstance";
+import { isTokenExpired } from "../components/utils/auth";
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);

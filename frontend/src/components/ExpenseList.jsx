@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router";
 import { useAuth } from "./utils/contextApi";
 import axiosInstance from "./utils/AxiosInstance";
 import ExpenseTable from "./expenses/ExpenseTable";
@@ -53,7 +54,13 @@ function ExpenseList() {
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold">Expense List</h2>
-        <div className="flex items-center capitalize">
+        <div className="flex items-center space-x-4 capitalize">
+          <Link
+            to="/chat"
+            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
+          >
+            Chat
+          </Link>
           <h1 className="mr-10">{user?.username}</h1>
           <button
             onClick={logout}

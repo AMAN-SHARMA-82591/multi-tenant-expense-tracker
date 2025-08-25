@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router";
 import Login from "../Login";
 import Register from "../Register";
 import ExpenseList from "../ExpenseList";
+import ChatPage from "../chat/ChatPage";
 import { useAuth } from "../utils/contextApi";
 import ProtectedRoute from "../common/ProtectedRoute";
 
@@ -23,6 +24,14 @@ export default function AppRoutes() {
             element={
               <ProtectedRoute>
                 <ExpenseList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <ChatPage />
               </ProtectedRoute>
             }
           />
