@@ -21,14 +21,14 @@ router.post(
     const tenantId = crypto.randomUUID();
     const userData = await UserModel.findOne({ email });
     if (userData) throw new ApiError("User already exists", 409);
-    await UserModel.create({
+    const user = await UserModel.create({
       username,
       email,
       password: hashPassword,
       tenantId,
     });
     const token = jwt.sign(
-      { username, email, tenantId },
+      { id: user._id, username, email, tenantId },
       process.env.JWT_SECRET,
       {
         expiresIn: "1d",
@@ -52,6 +52,7 @@ router.post("/sign-in", async (req, res) => {
   if (!isPasswordVaild) throw new ApiError("Invalid credentials", 404);
   const token = jwt.sign(
     {
+      id: userData._id,
       username: userData.username,
       email: userData.email,
       tenantId: userData.tenantId,

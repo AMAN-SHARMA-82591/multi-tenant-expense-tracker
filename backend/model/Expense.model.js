@@ -38,13 +38,15 @@ const ExpenseSchema = new Schema(
       min: [1, "Amount must be greater than 0"],
       max: [1000000, "Amount must be less than $1,00,000"],
     },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "CreatedBy is required"],
+    },
     tenantId: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: "Tenant",
       required: [true, "Tenant ID is required"],
-      match: [
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
-        "Invalid tenantId format",
-      ],
     },
   },
   {

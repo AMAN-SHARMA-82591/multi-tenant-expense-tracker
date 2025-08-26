@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import ChatSidebar from "./ChatSidebar";
-import ChatWindow from "./ChatWindow";
-import CreateGroupModal from "./CreateGroupModal";
-import { HiMenu, HiPlus, HiMoon, HiSun } from "react-icons/hi";
 // import { toast } from "react-hot-toast";
+import { HiMenu, HiPlus, HiMoon, HiSun } from "react-icons/hi";
+import { io } from "socket.io-client";
+import ChatWindow from "./ChatWindow";
+import ChatSidebar from "./ChatSidebar";
+import CreateGroupModal from "./CreateGroupModal";
 import { useAuth, useChat } from "../utils/contextApi";
+import { useRef } from "react";
 
 const ChatDashboard = () => {
   const {
@@ -17,8 +19,8 @@ const ChatDashboard = () => {
     getUnreadCount,
     addNotification,
   } = useChat();
-  const { logout } = useAuth();
-
+  const { user, logout } = useAuth();
+  const socket = useRef();
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [totalUnread, setTotalUnread] = useState(0);
 
@@ -36,6 +38,13 @@ const ChatDashboard = () => {
       toggleSidebar();
     }
   }, [currentChat, toggleSidebar]);
+
+  useEffect(() => {
+    if (user) {
+      socket.current = io(import.meta.env.VITE_APP_BACKEND_HOST);
+      socket.current.emit("setup", user);
+    }
+  }, [user]);
 
   const handleCreateGroup = () => {
     setShowCreateGroup(true);

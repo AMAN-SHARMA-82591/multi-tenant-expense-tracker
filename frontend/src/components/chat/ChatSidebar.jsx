@@ -127,52 +127,53 @@ const ChatSidebar = () => {
           ))}
         </div>
       </div>
-
-      {/* Current User Info */}
-      <div
-        className={`p-4 border-b ${
-          darkMode
-            ? "border-gray-700 bg-gray-700"
-            : "border-gray-200 bg-gray-50"
-        }`}
-      >
-        <div className="flex items-center space-x-3">
-          <div className="relative">
-            <img
-              src={currentUser.avatar}
-              alt={currentUser.username}
-              className="w-10 h-10 rounded-full object-cover"
-            />
-            <div
-              className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 ${
-                darkMode ? "border-gray-800" : "border-white"
-              } ${
-                currentUser.status === "online"
-                  ? "bg-green-500"
-                  : currentUser.status === "away"
-                  ? "bg-yellow-500"
-                  : "bg-gray-500"
-              }`}
-            />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p
-              className={`font-medium truncate ${
-                darkMode ? "text-white" : "text-gray-900"
-              }`}
-            >
-              {currentUser.username}
-            </p>
-            <p
-              className={`text-sm truncate ${
-                darkMode ? "text-gray-400" : "text-gray-600"
-              }`}
-            >
-              {currentUser.email}
-            </p>
+      {/* Current User Info --- For now I have added a condition. Remove that after backend integration */}
+      {currentUser && (
+        <div
+          className={`p-4 border-b ${
+            darkMode
+              ? "border-gray-700 bg-gray-700"
+              : "border-gray-200 bg-gray-50"
+          }`}
+        >
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <img
+                src={currentUser.avatar}
+                alt={currentUser.username}
+                className="w-10 h-10 rounded-full object-cover"
+              />
+              <div
+                className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 ${
+                  darkMode ? "border-gray-800" : "border-white"
+                } ${
+                  currentUser.status === "online"
+                    ? "bg-green-500"
+                    : currentUser.status === "away"
+                    ? "bg-yellow-500"
+                    : "bg-gray-500"
+                }`}
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p
+                className={`font-medium truncate ${
+                  darkMode ? "text-white" : "text-gray-900"
+                }`}
+              >
+                {currentUser.username}
+              </p>
+              <p
+                className={`text-sm truncate ${
+                  darkMode ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                {currentUser.email}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Conversations List */}
       <div className="flex-1 overflow-y-auto">

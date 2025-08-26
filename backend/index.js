@@ -1,12 +1,15 @@
 import express from "express";
 import cors from "cors";
+import { Server } from "socket.io";
 import connectDB from "./config/db.js";
 import userRoute from "./routes/User.routes.js";
 import expenseRoute from "./routes/Expense.routes.js";
 import authRoute from "./routes/Authentication.routes.js";
 import "dotenv/config";
-const app = express();
+import socketHandler from "./sockets/index.js";
 
+const app = express();
+let server;
 const PORT = process.env.PORT;
 
 app.use(express.json());
@@ -31,12 +34,21 @@ app.use((err, req, res, next) => {
 const start = async () => {
   try {
     await connectDB(process.env.MONGO_URI);
-    app.listen(PORT, () => {
+    server = app.listen(PORT, () => {
       console.log(`Server is running on port: ${PORT}`);
     });
+    const io = new Server(server, {
+      cors: {
+        origin: process.env.ALLOWED_ORIGINS,
+        credentials: true,
+      },
+    });
+    socketHandler(io);
   } catch (error) {
+    console.log(error);
     return;
   }
 };
 
 start();
+export { app, server };

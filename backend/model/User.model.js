@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { emailRegex, tenantIdRegex } from "../utils/constants.js";
+import { emailRegex, roles } from "../utils/constants.js";
 
 const UserSchema = new Schema(
   {
@@ -26,14 +26,19 @@ const UserSchema = new Schema(
       maxlength: [100, "Password must be at most 100 characters"],
     },
     tenantId: {
+      type: Schema.Types.ObjectId,
+      ref: "Tenant",
+      default: null,
+    },
+    role: {
       type: String,
-      required: [true, "Tenant ID is required"],
-      unique: true,
-      match: [tenantIdRegex, "Invalid tenant ID format"],
+      enum: roles,
+      default: "member",
     },
   },
   {
     strict: true,
+    timestamps: true,
   }
 );
 
