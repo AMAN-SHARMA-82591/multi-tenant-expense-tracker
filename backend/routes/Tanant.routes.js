@@ -1,20 +1,29 @@
 import express from "express";
-import authenticationMiddleware from "../middlewares/authMiddleware";
+import authenticationMiddleware from "../middlewares/authMiddleware.js";
 import {
   createTenant,
+  deleteTenant,
   getTenant,
+  getTenantList,
   getTenantUsers,
-  joinTenant,
-} from "../controllers/Tanant.controller";
+  inviteUser,
+  responseInvite,
+} from "../controllers/Tanant.controller.js";
 
 const router = express.Router();
 
 router.use(authenticationMiddleware);
 
-router.post("/create", createTenant);
+router.route("/").get(getTenantList).post(createTenant);
 
-router.post("/join", joinTenant);
+// router.post("/join", joinTenant);
 
-router.get("/:id", getTenant);
+router.route("/:id").get(getTenant).delete(deleteTenant);
 
 router.get("/:id/users", getTenantUsers);
+router.post("/:id/invite", inviteUser);
+
+// Accept and Reject Invite
+router.patch("/invite/:inviteId/response", responseInvite);
+
+export default router;

@@ -18,17 +18,20 @@ router.post(
     }
     const { username, email, password } = data;
     const hashPassword = await bcrypt.hash(password, 12);
-    const tenantId = crypto.randomUUID();
     const userData = await UserModel.findOne({ email });
     if (userData) throw new ApiError("User already exists", 409);
     const user = await UserModel.create({
       username,
       email,
       password: hashPassword,
-      tenantId,
     });
     const token = jwt.sign(
-      { id: user._id, username, email, tenantId },
+      {
+        id: user._id,
+        username,
+        email,
+        role: user.role,
+      },
       process.env.JWT_SECRET,
       {
         expiresIn: "1d",
@@ -47,7 +50,8 @@ router.post("/sign-in", async (req, res) => {
   }
   const { email, password } = data;
   const userData = await UserModel.findOne({ email });
-  if (!userData) throw new ApiError("Invalid credentials", 404);
+  if (!userData)
+    throw new ApiError(`No user found with this email: ${email}`, 404);
   const isPasswordVaild = await bcrypt.compare(password, userData.password);
   if (!isPasswordVaild) throw new ApiError("Invalid credentials", 404);
   const token = jwt.sign(
@@ -55,7 +59,7 @@ router.post("/sign-in", async (req, res) => {
       id: userData._id,
       username: userData.username,
       email: userData.email,
-      tenantId: userData.tenantId,
+      role: userData.role,
     },
     process.env.JWT_SECRET,
     {

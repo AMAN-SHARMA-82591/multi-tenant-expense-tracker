@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 
-const tenantSchema = new Schema(
+const TenantSchema = new Schema(
   {
     name: {
       type: String,
@@ -9,18 +9,17 @@ const tenantSchema = new Schema(
       minlength: [1, "Title must be at least 1 character"],
       maxlength: [100, "Title must be at most 100 characters"],
     },
-    createdBy: {
+    userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      trim: true,
-      required: [true, "Category is required"],
+      required: [true, "User is required"],
     },
-    users: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
+    description: {
+      type: String,
+      trim: true,
+      minlength: [1, "Description must be at least 1 character"],
+      maxlength: [1000, "Description must be at most 1000 characters"],
+    },
   },
   {
     strict: true,
@@ -28,4 +27,5 @@ const tenantSchema = new Schema(
   }
 );
 
-export default model("Tenant", tenantSchema);
+const TenantModel = model("Tenant", TenantSchema);
+export default TenantModel;

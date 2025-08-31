@@ -46,7 +46,7 @@ const ExpenseSchema = new Schema(
     tenantId: {
       type: Schema.Types.ObjectId,
       ref: "Tenant",
-      required: [true, "Tenant ID is required"],
+      default: null,
     },
   },
   {
@@ -57,7 +57,7 @@ const ExpenseSchema = new Schema(
 
 ExpenseSchema.set("toJSON", {
   transform: function (doc, ret) {
-    delete ret.tenantId;
+    // delete ret.userId;
     delete ret.__v;
     return ret;
   },

@@ -25,15 +25,15 @@ const UserSchema = new Schema(
       minlength: [4, "Password must be at least 4 characters"],
       maxlength: [100, "Password must be at most 100 characters"],
     },
-    tenantId: {
-      type: Schema.Types.ObjectId,
-      ref: "Tenant",
-      default: null,
-    },
+    // tenantId: {
+    //   type: Schema.Types.ObjectId,
+    //   ref: "Tenant",
+    //   default: null,
+    // },
     role: {
       type: String,
       enum: roles,
-      default: "member",
+      default: "owner",
     },
   },
   {

@@ -1,15 +1,14 @@
-import express from "express";
+import "dotenv/config";
 import cors from "cors";
+import express from "express";
 import { Server } from "socket.io";
 import connectDB from "./config/db.js";
-import userRoute from "./routes/User.routes.js";
-import expenseRoute from "./routes/Expense.routes.js";
-import authRoute from "./routes/Authentication.routes.js";
-import "dotenv/config";
 import socketHandler from "./sockets/index.js";
+import routes from "./routes/index.js";
 
 const app = express();
 let server;
+let socketIo;
 const PORT = process.env.PORT;
 
 app.use(express.json());
@@ -20,9 +19,8 @@ app.use(
   })
 );
 
-app.use("/api/v1/auth", authRoute);
-app.use("/api/v1/user", userRoute);
-app.use("/api/v1/expense", expenseRoute);
+// Main Routing
+routes(app);
 
 app.use((err, req, res, next) => {
   console.error(err);
@@ -37,18 +35,18 @@ const start = async () => {
     server = app.listen(PORT, () => {
       console.log(`Server is running on port: ${PORT}`);
     });
-    const io = new Server(server, {
+    socketIo = new Server(server, {
       cors: {
         origin: process.env.ALLOWED_ORIGINS,
         credentials: true,
       },
     });
-    socketHandler(io);
+    socketHandler(socketIo);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return;
   }
 };
 
 start();
-export { app, server };
+export { app, server, socketIo };
