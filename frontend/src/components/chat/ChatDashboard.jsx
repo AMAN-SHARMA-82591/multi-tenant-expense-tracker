@@ -11,15 +11,12 @@ import { useRef } from "react";
 const ChatDashboard = () => {
   const {
     currentChat,
-    darkMode,
-    sidebarOpen,
-    toggleDarkMode,
     toggleSidebar,
     conversations,
     getUnreadCount,
     addNotification,
   } = useChat();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const socket = useRef();
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [totalUnread, setTotalUnread] = useState(0);
@@ -46,10 +43,6 @@ const ChatDashboard = () => {
     }
   }, [user]);
 
-  const handleCreateGroup = () => {
-    setShowCreateGroup(true);
-  };
-
   const handleGroupCreated = (groupData) => {
     setShowCreateGroup(false);
     addNotification({
@@ -60,94 +53,11 @@ const ChatDashboard = () => {
   };
 
   return (
-    <div
-      className={`min-h-screen transition-colors duration-200 ${
-        darkMode ? "dark bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
-      }`}
-    >
-      {/* Header */}
-      <header
-        className={`sticky top-0 z-40 border-b ${
-          darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-        }`}
-      >
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={toggleSidebar}
-              className={`p-2 rounded-lg transition-colors ${
-                darkMode
-                  ? "hover:bg-gray-700 text-gray-300"
-                  : "hover:bg-gray-100 text-gray-600"
-              }`}
-            >
-              <HiMenu className="w-6 h-6" />
-            </button>
-            <h1
-              className={`text-xl font-bold ${
-                darkMode ? "text-white" : "text-gray-900"
-              }`}
-            >
-              Chat App
-            </h1>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            {/* Create Group Button */}
-            <button
-              onClick={handleCreateGroup}
-              className={`flex items-center space-x-2 px-3 py-2 rounded-lg font-medium transition-colors ${
-                darkMode
-                  ? "bg-blue-600 hover:bg-blue-700 text-white"
-                  : "bg-blue-500 hover:bg-blue-600 text-white"
-              }`}
-            >
-              <HiPlus className="w-4 h-4" />
-              <span className="hidden sm:inline">New Group</span>
-            </button>
-
-            {/* Dark Mode Toggle */}
-            <button
-              onClick={toggleDarkMode}
-              className={`p-2 rounded-lg transition-colors ${
-                darkMode
-                  ? "hover:bg-gray-700 text-gray-300"
-                  : "hover:bg-gray-100 text-gray-600"
-              }`}
-            >
-              {darkMode ? (
-                <HiSun className="w-5 h-5" />
-              ) : (
-                <HiMoon className="w-5 h-5" />
-              )}
-            </button>
-            <button
-              onClick={logout}
-              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors"
-            >
-              Logout
-            </button>
-
-            {/* Unread Badge */}
-            {totalUnread > 0 && (
-              <div className="flex items-center justify-center w-6 h-6 bg-red-500 text-white text-xs font-bold rounded-full">
-                {totalUnread > 99 ? "99+" : totalUnread}
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-
+    <div className="min-h-screen transition-colors duration-200 dark:bg-gray-900 dark:text-white bg-gray-50 text-gray-900">
       {/* Main Content */}
       <div className="flex h-[calc(100vh-4rem)]">
         {/* Sidebar */}
-        <div
-          className={`transition-all duration-300 ${
-            sidebarOpen
-              ? "w-80 translate-x-0"
-              : "w-80 -translate-x-full md:translate-x-0"
-          } ${sidebarOpen ? "block" : "hidden md:block"}`}
-        >
+        <div className="transition-all duration-300 w-80 -translate-x-full md:translate-x-0">
           <ChatSidebar />
         </div>
 
@@ -156,19 +66,9 @@ const ChatDashboard = () => {
           {currentChat ? (
             <ChatWindow />
           ) : (
-            <div
-              className={`flex-1 flex items-center justify-center ${
-                darkMode ? "bg-gray-900" : "bg-gray-50"
-              }`}
-            >
+            <div className="flex-1 flex items-center justify-center dark:bg-gray-900 bg-gray-50">
               <div className="text-center">
-                <div
-                  className={`w-24 h-24 mx-auto mb-4 rounded-full flex items-center justify-center ${
-                    darkMode
-                      ? "bg-gray-800 text-gray-400"
-                      : "bg-gray-200 text-gray-500"
-                  }`}
-                >
+                <div className="w-24 h-24 mx-auto mb-4 rounded-full flex items-center justify-center dark:bg-gray-800 dark:text-gray-400 bg-gray-200 text-gray-500">
                   <svg
                     className="w-12 h-12"
                     fill="none"
@@ -183,16 +83,10 @@ const ChatDashboard = () => {
                     />
                   </svg>
                 </div>
-                <h3
-                  className={`text-xl font-semibold mb-2 ${
-                    darkMode ? "text-white" : "text-gray-900"
-                  }`}
-                >
+                <h3 className="text-xl font-semibold mb-2 dark:text-white text-gray-900">
                   Welcome to Chat
                 </h3>
-                <p
-                  className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}
-                >
+                <p className="dark:text-gray-400 text-gray-600">
                   Select a conversation to start messaging
                 </p>
               </div>

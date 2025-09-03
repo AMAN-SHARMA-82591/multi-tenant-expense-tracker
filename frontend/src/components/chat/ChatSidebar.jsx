@@ -5,13 +5,8 @@ import { HiSearch } from "react-icons/hi";
 import { useChat } from "../utils/contextApi";
 
 const ChatSidebar = () => {
-  const {
-    conversations,
-    currentUser,
-    darkMode,
-    getUnreadCount,
-    getConversationById,
-  } = useChat();
+  const { conversations, currentUser, getUnreadCount, getConversationById } =
+    useChat();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all"); // all, groups, direct
@@ -64,33 +59,17 @@ const ChatSidebar = () => {
   };
 
   return (
-    <div
-      className={`h-full flex flex-col border-r ${
-        darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-      }`}
-    >
+    <div className="h-full flex flex-col border-r dark:bg-gray-800 dark:border-gray-700 bg-white border-gray-200">
       {/* Search and Filter Header */}
-      <div
-        className={`p-4 border-b ${
-          darkMode ? "border-gray-700" : "border-gray-200"
-        }`}
-      >
+      <div className="p-4 border-b dark:border-gray-700 border-gray-200">
         <div className="relative mb-3">
-          <HiSearch
-            className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
-              darkMode ? "text-gray-400" : "text-gray-500"
-            }`}
-          />
+          <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 dark:text-gray-400 text-gray-500" />
           <input
             type="text"
             placeholder="Search conversations..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className={`w-full pl-10 pr-4 py-2 rounded-lg border transition-colors ${
-              darkMode
-                ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                : "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500"
-            }`}
+            className="w-full pl-10 pr-4 py-2 rounded-lg border transition-colors bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500"
           />
         </div>
 
@@ -114,12 +93,8 @@ const ChatSidebar = () => {
               onClick={() => setFilterType(key)}
               className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                 filterType === key
-                  ? darkMode
-                    ? "bg-blue-600 text-white"
-                    : "bg-blue-500 text-white"
-                  : darkMode
-                  ? "text-gray-400 hover:bg-gray-700"
-                  : "text-gray-600 hover:bg-gray-100"
+                  ? "dark:bg-blue-600 dark:text-white bg-blue-500 text-white"
+                  : "dark:text-gray-400 dark:hover:bg-gray-700 text-gray-600 hover:bg-gray-100"
               }`}
             >
               {label} ({count})
@@ -129,13 +104,7 @@ const ChatSidebar = () => {
       </div>
       {/* Current User Info --- For now I have added a condition. Remove that after backend integration */}
       {currentUser && (
-        <div
-          className={`p-4 border-b ${
-            darkMode
-              ? "border-gray-700 bg-gray-700"
-              : "border-gray-200 bg-gray-50"
-          }`}
-        >
+        <div className="p-4 border-b dark:border-gray-700 dark:bg-gray-700 border-gray-200 bg-gray-50">
           <div className="flex items-center space-x-3">
             <div className="relative">
               <img
@@ -144,30 +113,21 @@ const ChatSidebar = () => {
                 className="w-10 h-10 rounded-full object-cover"
               />
               <div
-                className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 ${
-                  darkMode ? "border-gray-800" : "border-white"
-                } ${
-                  currentUser.status === "online"
-                    ? "bg-green-500"
-                    : currentUser.status === "away"
-                    ? "bg-yellow-500"
-                    : "bg-gray-500"
-                }`}
+                className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 dark:border-gray-800 border-white
+                  ${
+                    currentUser.status === "online"
+                      ? "bg-green-500"
+                      : currentUser.status === "away"
+                      ? "bg-yellow-500"
+                      : "bg-gray-500"
+                  }`}
               />
             </div>
             <div className="flex-1 min-w-0">
-              <p
-                className={`font-medium truncate ${
-                  darkMode ? "text-white" : "text-gray-900"
-                }`}
-              >
+              <p className="font-medium truncate dark:text-white text-gray-900">
                 {currentUser.username}
               </p>
-              <p
-                className={`text-sm truncate ${
-                  darkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
+              <p className="text-sm truncate dark:text-gray-400 text-gray-600">
                 {currentUser.email}
               </p>
             </div>
@@ -178,11 +138,7 @@ const ChatSidebar = () => {
       {/* Conversations List */}
       <div className="flex-1 overflow-y-auto">
         {filteredConversations.length === 0 ? (
-          <div
-            className={`p-4 text-center ${
-              darkMode ? "text-gray-400" : "text-gray-500"
-            }`}
-          >
+          <div className="p-4 dark:text-gray-400 text-gray-500 text-center">
             {searchTerm ? "No conversations found" : "No conversations yet"}
           </div>
         ) : (
@@ -203,18 +159,8 @@ const ChatSidebar = () => {
       </div>
 
       {/* Footer */}
-      <div
-        className={`p-4 border-t ${
-          darkMode
-            ? "border-gray-700 bg-gray-700"
-            : "border-gray-200 bg-gray-50"
-        }`}
-      >
-        <div
-          className={`text-xs text-center ${
-            darkMode ? "text-gray-400" : "text-gray-500"
-          }`}
-        >
+      <div className="p-4 border-t dark:border-gray-700 dark:bg-gray-700 border-gray-200 bg-gray-50">
+        <div className="text-xs text-center dark:text-gray-400 text-gray-500">
           {filteredConversations.length} conversation
           {filteredConversations.length !== 1 ? "s" : ""}
         </div>

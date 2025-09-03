@@ -7,6 +7,19 @@ import { isTokenExpired } from "../components/utils/auth";
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [darkMode, setDarkMode] = useState(() => {
+    const savedMode = localStorage.getItem("darkMode");
+    return savedMode ? JSON.parse(savedMode) : false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("darkMode", JSON.stringify(darkMode));
+    if (darkMode) {
+      document.body.classList.add("dark");
+    } else {
+      document.body.classList.remove("dark");
+    }
+  }, [darkMode]);
 
   const login = (userData) => {
     const token = userData.token;
@@ -19,6 +32,10 @@ const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem("token");
   }, []);
+
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => !prev);
+  };
 
   useEffect(() => {
     setLogoutHandler(logout);
@@ -44,10 +61,12 @@ const AuthProvider = ({ children }) => {
   }
 
   const value = {
-    isLoading,
     user,
     login,
     logout,
+    darkMode,
+    isLoading,
+    toggleDarkMode,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
