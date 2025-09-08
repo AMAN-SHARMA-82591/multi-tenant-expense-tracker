@@ -11,6 +11,8 @@ import ApiError from "../utils/apiError.js";
 // import { socketIo } from "../index.js";
 import TenantMembershipModel from "../model/TenantMembership.model.js";
 import GroupInviteNotificationModel from "../model/Notification.model.js";
+import ExpenseModel from "../model/Expense.model.js";
+import { ObjectId } from "../utils/constants.js";
 
 export const getTenant = asyncHandler(async (req, res) => {
   const tenantDetails = await TenantModel.findOne({
@@ -25,14 +27,60 @@ export const getTenant = asyncHandler(async (req, res) => {
 export const getTenantList = asyncHandler(async (req, res) => {
   const tenantGroupList = await TenantModel.find({
     userId: req.uid,
-  }).lean();
+    type: "group",
+  })
+    .sort({ name: 1 })
+    .lean();
   return res.status(200).json({
     success: true,
-    data: tenantGroupList,
+    data: { group: tenantGroupList, total: tenantGroupList.length },
   });
 });
 
 export const getTenantUsers = asyncHandler(async (req, res) => {});
+
+export const getTenantGroupExpenseList = asyncHandler(async (req, res) => {
+  const tenantId = req.params.id;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const isTenantGroupExists = await TenantModel.findOne({
+    _id: tenantId,
+    userId: req.uid,
+    type: "group",
+  })
+    .lean()
+    .select("_id");
+  if (!isTenantGroupExists) {
+    throw new ApiError("Tenant group not found", 404);
+  }
+
+  const [result] = await ExpenseModel.aggregate([
+    {
+      $match: {
+        createdBy: ObjectId(req.uid),
+        tenantId: ObjectId(tenantId),
+      },
+    },
+    {
+      $facet: {
+        expenses: [{ $sort: { date: -1 } }, { $skip: skip }, { $limit: limit }],
+        total: [{ $count: "count" }],
+      },
+    },
+  ]);
+  const expenseList = result.expenses;
+  const total = result.total[0]?.count || 0;
+  res.status(200).json({
+    success: true,
+    message: "Expense list",
+    data: {
+      expenseList,
+      total,
+    },
+  });
+});
 
 export const createTenant = asyncHandler(async (req, res) => {
   const { data, error, success } = tenantSchema.safeParse(req.body);
@@ -41,11 +89,12 @@ export const createTenant = asyncHandler(async (req, res) => {
       .status(400)
       .json({ success: false, error: z.flattenError(error).fieldErrors });
   }
-  const { name, description } = data;
+  const { name } = data;
   // To check if a particular user has already created a new tenant group with similar name
   const isTenantExist = await TenantModel.findOne({
     name,
     userId: req.uid,
+    type: "group",
   }).lean();
   if (isTenantExist) {
     throw new ApiError("Tenant group already exist with similar name", 400);
@@ -53,9 +102,10 @@ export const createTenant = asyncHandler(async (req, res) => {
 
   const newTenant = await TenantModel.create({
     name,
-    description,
     userId: req.uid,
+    type: "group",
   });
+
   await TenantMembershipModel.create({
     tenantId: newTenant._id,
     userId: req.uid,
@@ -63,9 +113,15 @@ export const createTenant = asyncHandler(async (req, res) => {
   });
   return res.status(201).json({
     success: true,
-    message: "Tenant created successfully",
+    message: "Tenant group created successfully",
     data: newTenant,
   });
+});
+
+// To create expense in a group
+export const createTenantGroupExpense = asyncHandler(async (req, res) => {
+  const tenantId = req.params.id;
+  res.end();
 });
 
 export const deleteTenant = asyncHandler(async (req, res) => {
@@ -73,6 +129,7 @@ export const deleteTenant = asyncHandler(async (req, res) => {
   const isTenantExist = await TenantModel.findOne({
     _id: id,
     userId: req.uid,
+    type: "group",
   })
     .lean()
     .select("_id");

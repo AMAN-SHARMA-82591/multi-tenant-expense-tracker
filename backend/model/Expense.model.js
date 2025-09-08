@@ -46,7 +46,7 @@ const ExpenseSchema = new Schema(
     tenantId: {
       type: Schema.Types.ObjectId,
       ref: "Tenant",
-      default: null,
+      required: [true, "TenantId is required"],
     },
   },
   {

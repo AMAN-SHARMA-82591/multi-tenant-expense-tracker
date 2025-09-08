@@ -1,6 +1,6 @@
 import userRoute from "./User.routes.js";
 import expenseRoute from "./Expense.routes.js";
-import tenantRoute from "./Tanant.routes.js";
+import tenantRoute from "./Tenant.routes.js";
 import notificationRoute from "./Notification.routes.js";
 import authRoute from "./Authentication.routes.js";
 

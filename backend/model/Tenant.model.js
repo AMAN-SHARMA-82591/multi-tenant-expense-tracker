@@ -14,18 +14,23 @@ const TenantSchema = new Schema(
       ref: "User",
       required: [true, "User is required"],
     },
-    description: {
+    type: {
       type: String,
-      trim: true,
-      minlength: [1, "Description must be at least 1 character"],
-      maxlength: [1000, "Description must be at most 1000 characters"],
+      enum: ["personal", "group"],
+      default: "personal",
     },
+    // description: {
+    //   type: String,
+    //   trim: true,
+    //   minlength: [1, "Description must be at least 1 character"],
+    //   maxlength: [1000, "Description must be at most 1000 characters"],
+    // },
   },
   {
     strict: true,
     timestamps: true,
   }
 );
-
+//  members: [user._id], roles: { [user._id]: "owner" },
 const TenantModel = model("Tenant", TenantSchema);
 export default TenantModel;

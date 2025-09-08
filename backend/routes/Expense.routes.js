@@ -1,19 +1,20 @@
 import express from "express";
 import authenticationMiddleware from "../middlewares/authMiddleware.js";
 import {
-  createExpense,
+  createPersonalExpense,
   generateSummaryReport,
-  getExpenseList,
+  getPersonalExpenseList,
 } from "../controllers/Expense.controller.js";
 
 const router = express.Router();
 
 router.use(authenticationMiddleware);
 
-router.get("/", getExpenseList);
+// Get personal expense list
+router.get("/", getPersonalExpenseList);
 
 router.get("/generate-report", generateSummaryReport);
 
-router.post("/", createExpense);
+router.post("/create", createPersonalExpense);
 
 export default router;
