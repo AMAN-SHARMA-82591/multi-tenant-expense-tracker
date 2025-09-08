@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axiosInstance from "../utils/AxiosInstance";
-import { createExpenseSchema } from "../utils/formValidate";
+import { createTenantGroupSchema } from "../utils/formValidate";
+import SubmitButton from "../common/SubmitButton";
 
 const inititalValues = {
   name: "",
@@ -8,9 +9,8 @@ const inititalValues = {
 };
 
 const NewTenantGroup = ({
-  paginate,
   openTenantGroup,
-  fetchExpenseList,
+  handleFetchTenantGroup,
   handleOpenTenantGroupDialog,
 }) => {
   const [formData, setFormData] = useState(inititalValues);
@@ -20,19 +20,14 @@ const NewTenantGroup = ({
     e.preventDefault();
     setPending(true);
     try {
-      await createExpenseSchema.validate(formData, { abortEarly: false });
-      const response = await axiosInstance.post("/tenant", {
-        ...formData,
-        amount: parseFloat(formData.amount),
-        date: new Date(formData.date).toISOString(),
-      });
+      await createTenantGroupSchema.validate(formData, { abortEarly: false });
+      const response = await axiosInstance.post("/tenant", formData);
       if (response.data.success) {
-        paginate(1);
-        fetchExpenseList();
+        handleFetchTenantGroup();
         handleOpenTenantGroupDialog();
         setFormData(inititalValues);
       } else {
-        alert("Failed to create new expense");
+        alert("Failed to create new tenant group");
       }
     } catch (error) {
       if (error.inner) {
@@ -56,29 +51,13 @@ const NewTenantGroup = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  function SubmitButton() {
-    return (
-      <button
-        type="submit"
-        disabled={pending}
-        className={
-          pending
-            ? "bg-blue-300 text-white px-4 py-2 rounded-mdtransition-colors"
-            : "bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
-        }
-      >
-        {pending ? "Submitting..." : "Submit"}
-      </button>
-    );
-  }
-
   return (
     <div
       style={!openTenantGroup ? { display: "none" } : {}}
       className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50"
     >
       <div className="relative bg-white p-8 rounded-lg shadow-xl w-11/12 max-w-lg">
-        <h3 className="text-xl font-semibold mb-4">Add New Expense</h3>
+        <h3 className="text-xl font-semibold mb-4">Create New Tenant Group</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -115,7 +94,7 @@ const NewTenantGroup = ({
             >
               Cancel
             </button>
-            <SubmitButton />
+            <SubmitButton pending={pending} />
           </div>
         </form>
       </div>
