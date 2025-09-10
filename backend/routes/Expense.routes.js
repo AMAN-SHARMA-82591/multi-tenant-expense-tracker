@@ -1,9 +1,9 @@
 import express from "express";
 import authenticationMiddleware from "../middlewares/authMiddleware.js";
 import {
-  createPersonalExpense,
+  createExpense,
   generateSummaryReport,
-  getPersonalExpenseList,
+  getExpenseList,
 } from "../controllers/Expense.controller.js";
 
 const router = express.Router();
@@ -11,10 +11,10 @@ const router = express.Router();
 router.use(authenticationMiddleware);
 
 // Get personal expense list
-router.get("/", getPersonalExpenseList);
+router.get("/", getExpenseList);
 
 router.get("/generate-report", generateSummaryReport);
 
-router.post("/create", createPersonalExpense);
+router.post("/create", createExpense);
 
 export default router;

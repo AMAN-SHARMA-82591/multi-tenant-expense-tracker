@@ -5,23 +5,18 @@ import ReportDropdown from "../common/ReportDropdown";
 
 export default function ExpenseSidebar({
   tenantGroup,
-  fetchExpenseList,
   handleCreateExpense,
   activeTenantGroupId,
   handleFetchTenantGroup,
-  setActiveTenantGroupId,
   handleOpenTenantGroupDialog,
+  handleSetActiveTenantGroupId,
 }) {
   const location = useLocation();
-
-  const handleFetchExpenseList = (tenantId) => {
-    setActiveTenantGroupId(tenantId);
-    fetchExpenseList(tenantId, 1);
-  };
 
   const handleDeleteTenantGroup = async (tenantId) => {
     const response = await axiosInstance.delete(`/tenant/${tenantId}`);
     if (response.data.success) {
+      handleSetActiveTenantGroupId(null);
       handleFetchTenantGroup();
     }
   };
@@ -44,7 +39,7 @@ export default function ExpenseSidebar({
           </button>
           <ReportDropdown />
           <button
-            onClick={() => handleFetchExpenseList(null)}
+            onClick={() => handleSetActiveTenantGroupId(null)}
             className={`flex items-center gap-2 px-3 py-2 rounded ${
               activeTenantGroupId === null
                 ? "bg-blue-100 dark:bg-blue-900 font-bold"
@@ -68,7 +63,7 @@ export default function ExpenseSidebar({
               {tenantGroup.map((group) => (
                 <li key={group._id}>
                   <div
-                    onClick={() => handleFetchExpenseList(group._id)}
+                    onClick={() => handleSetActiveTenantGroupId(group._id)}
                     className={`w-full text-left px-3 py-2 flex justify-between items-center rounded ${
                       activeTenantGroupId === group._id
                         ? "bg-blue-100 dark:bg-blue-900 font-bold"

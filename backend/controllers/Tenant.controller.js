@@ -1,18 +1,18 @@
 import { z } from "zod/v4";
+import mongoose from "mongoose";
 import asyncHandler from "../utils/asyncHandler.js";
 import {
   inviteResponseSchema,
   tenantSchema,
   tenantUserInviteSchema,
 } from "../validators/tenantSchemaValidator.js";
-import TenantModel from "../model/Tenant.model.js";
-import UserModel from "../model/User.model.js";
 import ApiError from "../utils/apiError.js";
+import UserModel from "../model/User.model.js";
+import TenantModel from "../model/Tenant.model.js";
+import ExpenseModel from "../model/Expense.model.js";
 // import { socketIo } from "../index.js";
 import TenantMembershipModel from "../model/TenantMembership.model.js";
 import GroupInviteNotificationModel from "../model/Notification.model.js";
-import ExpenseModel from "../model/Expense.model.js";
-import { ObjectId } from "../utils/constants.js";
 
 export const getTenant = asyncHandler(async (req, res) => {
   const tenantDetails = await TenantModel.findOne({
@@ -39,49 +39,6 @@ export const getTenantList = asyncHandler(async (req, res) => {
 
 export const getTenantUsers = asyncHandler(async (req, res) => {});
 
-export const getTenantGroupExpenseList = asyncHandler(async (req, res) => {
-  const tenantId = req.params.id;
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
-
-  const isTenantGroupExists = await TenantModel.findOne({
-    _id: tenantId,
-    userId: req.uid,
-    type: "group",
-  })
-    .lean()
-    .select("_id");
-  if (!isTenantGroupExists) {
-    throw new ApiError("Tenant group not found", 404);
-  }
-
-  const [result] = await ExpenseModel.aggregate([
-    {
-      $match: {
-        createdBy: ObjectId(req.uid),
-        tenantId: ObjectId(tenantId),
-      },
-    },
-    {
-      $facet: {
-        expenses: [{ $sort: { date: -1 } }, { $skip: skip }, { $limit: limit }],
-        total: [{ $count: "count" }],
-      },
-    },
-  ]);
-  const expenseList = result.expenses;
-  const total = result.total[0]?.count || 0;
-  res.status(200).json({
-    success: true,
-    message: "Expense list",
-    data: {
-      expenseList,
-      total,
-    },
-  });
-});
-
 export const createTenant = asyncHandler(async (req, res) => {
   const { data, error, success } = tenantSchema.safeParse(req.body);
   if (!success) {
@@ -89,7 +46,7 @@ export const createTenant = asyncHandler(async (req, res) => {
       .status(400)
       .json({ success: false, error: z.flattenError(error).fieldErrors });
   }
-  const { name } = data;
+  const { name, description } = data;
   // To check if a particular user has already created a new tenant group with similar name
   const isTenantExist = await TenantModel.findOne({
     name,
@@ -102,8 +59,9 @@ export const createTenant = asyncHandler(async (req, res) => {
 
   const newTenant = await TenantModel.create({
     name,
-    userId: req.uid,
     type: "group",
+    userId: req.uid,
+    description,
   });
 
   await TenantMembershipModel.create({
@@ -118,26 +76,56 @@ export const createTenant = asyncHandler(async (req, res) => {
   });
 });
 
-// To create expense in a group
-export const createTenantGroupExpense = asyncHandler(async (req, res) => {
-  const tenantId = req.params.id;
-  res.end();
-});
-
 export const deleteTenant = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const { id: tenantId } = req.params;
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   const isTenantExist = await TenantModel.findOne({
-    _id: id,
+    _id: tenantId,
     userId: req.uid,
     type: "group",
   })
     .lean()
     .select("_id");
   if (!isTenantExist) {
+    await session.abortTransaction();
+    await session.endSession();
     throw new ApiError("Tenant group not found", 404);
   }
 
-  await TenantModel.deleteOne({ _id: id });
+  const tenantGroupExpenseList = await ExpenseModel.find({
+    tenantId,
+  })
+    .lean()
+    .select("_id");
+  const tenantGroupExpenseIds = tenantGroupExpenseList.map(
+    (expense) => expense._id
+  );
+
+  if (tenantGroupExpenseIds.length) {
+    await ExpenseModel.deleteMany({
+      _id: { $in: tenantGroupExpenseIds },
+    }).session(session);
+  }
+
+  const tenantMembers = await TenantMembershipModel.find({
+    tenantId,
+    userId: req.uid,
+  })
+    .lean()
+    .select("_id");
+  const tenantMembersIds = tenantMembers.map((member) => member._id);
+  if (tenantMembersIds.length) {
+    await TenantMembershipModel.deleteMany({
+      tenantId,
+      _id: { $in: tenantMembersIds },
+    }).session(session);
+  }
+  await TenantModel.deleteOne({ _id: tenantId }).session(session);
+
+  await session.commitTransaction();
+  await session.endSession();
 
   return res.status(201).json({
     success: true,

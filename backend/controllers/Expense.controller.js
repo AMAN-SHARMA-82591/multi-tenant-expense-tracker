@@ -1,6 +1,6 @@
 import { z } from "zod/v4";
 import ApiError from "../utils/apiError.js";
-import { ObjectId, YEAR } from "../utils/constants.js";
+import { isValidObjectId, ObjectId, YEAR } from "../utils/constants.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ExpenseModel from "../model/Expense.model.js";
 import { generateAISummary } from "../config/geminiAi.js";
@@ -8,22 +8,39 @@ import buildExpenseSummaryPrompt from "../utils/aiPrompt.js";
 import { personalExpenseSchema } from "../validators/expenseSchema.js";
 import TenantModel from "../model/Tenant.model.js";
 
-export const getPersonalExpenseList = asyncHandler(async (req, res) => {
-  const tenantId = req.tid;
+export const getExpenseList = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
+  let tenantId = isValidObjectId(req.query.tenantId)
+    ? req.query.tenantId
+    : null;
+
   const skip = (page - 1) * limit;
 
-  const isPersonalTenentExists = await TenantModel.findOne({
-    userId: req.uid,
-    _id: tenantId,
-    type: "personal",
-  })
-    .lean()
-    .select("_id");
+  if (!tenantId) {
+    const isPersonalTenentExists = await TenantModel.findOne({
+      userId: req.uid,
+      _id: req.tid,
+      type: "personal",
+    })
+      .lean()
+      .select("_id");
 
-  if (!isPersonalTenentExists) {
-    throw new ApiError("Tenant group not found", 404);
+    if (!isPersonalTenentExists) {
+      throw new ApiError("Personal tenant not found", 404);
+    }
+    tenantId = isPersonalTenentExists._id;
+  } else {
+    const isTenantGroupExists = await TenantModel.findOne({
+      _id: tenantId,
+      userId: req.uid,
+      type: "group",
+    })
+      .lean()
+      .select("_id");
+    if (!isTenantGroupExists) {
+      throw new ApiError("Tenant group not found", 404);
+    }
   }
 
   const [result] = await ExpenseModel.aggregate([
@@ -119,32 +136,44 @@ export const generateSummaryReport = asyncHandler(async (req, res) => {
   return res.status(200).json({ success: true, report: reportSummary });
 });
 
-export const createPersonalExpense = asyncHandler(async (req, res) => {
-  const tenantId = req.tid;
+export const createExpense = asyncHandler(async (req, res) => {
   const { success, data, error } = personalExpenseSchema.safeParse(req.body);
   if (!success) {
     return res
       .status(400)
       .json({ success: false, error: z.flattenError(error).fieldErrors });
   }
-  const { title, category, amount, date } = data;
-  if (tenantId) {
+  const { title, category, amount, date, tenantId } = data;
+
+  if (!tenantId) {
     const isPersonalTenantExists = await TenantModel.findOne({
-      _id: tenantId,
+      _id: req.tid,
       userId: req.uid,
       type: "personal",
     })
       .lean()
       .select("_id");
+
     if (!isPersonalTenantExists) {
-      throw new ApiError("Personal tenant group not found", 404);
+      throw new ApiError("Personal tenant not found", 404);
+    }
+  } else {
+    const isGroupTenantExists = await TenantModel.findOne({
+      _id: tenantId,
+      userId: req.uid,
+      type: "group",
+    })
+      .lean()
+      .select("_id");
+    if (!isGroupTenantExists) {
+      throw new ApiError("Tenant group not found", 404);
     }
   }
   const duplicateExpense = await ExpenseModel.findOne({
     title,
     date,
     createdBy: req.uid,
-    tenantId,
+    tenantId: tenantId ? tenantId : req.tid,
   });
   if (duplicateExpense) {
     throw new ApiError("Expense already exists for this title or date", 409);
@@ -156,7 +185,7 @@ export const createPersonalExpense = asyncHandler(async (req, res) => {
     amount,
     date,
     createdBy: req.uid,
-    tenantId,
+    tenantId: tenantId ? tenantId : req.tid,
   });
 
   return res.status(201).json({

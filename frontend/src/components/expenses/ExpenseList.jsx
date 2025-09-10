@@ -1,30 +1,32 @@
 import { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
 import axiosInstance from "../utils/AxiosInstance";
 import ExpenseTable from "../expenses/ExpenseTable";
 import PaginationContainer from "../common/PaginationContainer";
 import ExpenseSidebar from "./ExpenseSidebar";
 import NewExpenseDialog from "./NewExpenseDialog";
 import NewTenantGroup from "./NewTenantGroup";
+import { useQueryParams } from "../hooks/useQueryParams";
 
 const limit = 10;
+
 function ExpenseList() {
+  const { getParam, setParam } = useQueryParams();
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [currentPage, setCurrentPage] = useState(1);
   const [tenantGroup, setTenantGroupList] = useState([]);
   const [openTenantGroup, setOpenTenantGroup] = useState(false);
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
-  const [activeTenantGroupId, setActiveTenantGroupId] = useState(null);
+
+  // Getting URL Params
+  const currentPage = Number(getParam("page")) || 1;
+  const activeTenantGroupId = getParam("tenantId") || null;
   const totalPages = Math.ceil(expenses?.data?.total / limit) || 1;
 
-  const fetchExpenseList = useCallback(async (tenantId = null, page = 1) => {
+  const fetchExpenseList = useCallback(async () => {
     setLoading(true);
     try {
-      const endpoint = tenantId ? `tenant/${tenantId}/expense` : "/expense";
       const response = await axiosInstance.get(
-        `${endpoint}?page=${page}&limit=${limit}`
+        `/expense?page=${currentPage}&limit=${limit}&tenantId=${activeTenantGroupId}`
       );
       if (!response.data) {
         alert("error fetching expense list.");
@@ -35,7 +37,7 @@ function ExpenseList() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activeTenantGroupId, currentPage]);
 
   const handleFetchTenantGroup = useCallback(async () => {
     const response = await axiosInstance.get("/tenant");
@@ -45,34 +47,23 @@ function ExpenseList() {
   }, []);
 
   useEffect(() => {
-    const params = new URLSearchParams();
-    if (activeTenantGroupId) {
-      params.set("tenantId", activeTenantGroupId);
-    }
-    // setCurrentPage(currentPage + 1);
-    params.set("page", currentPage.toString());
-    params.set("limit", limit.toString());
-    setSearchParams(params);
-  }, [activeTenantGroupId, setSearchParams, currentPage]);
-
-  useEffect(() => {
-    fetchExpenseList(null, currentPage);
-  }, [currentPage, fetchExpenseList]);
+    fetchExpenseList(activeTenantGroupId, currentPage);
+  }, [activeTenantGroupId, currentPage, fetchExpenseList]);
 
   useEffect(() => {
     handleFetchTenantGroup();
   }, [handleFetchTenantGroup]);
 
-  const handleOpenCreateDialog = async () => {
-    setOpenCreateDialog(!openCreateDialog);
-  };
-
-  const handleOpenTenantGroupDialog = async () => {
+  const handleOpenCreateDialog = () => setOpenCreateDialog(!openCreateDialog);
+  const handleOpenTenantGroupDialog = () =>
     setOpenTenantGroup(!openTenantGroup);
-  };
 
   const paginate = (pageNumber) => {
-    setCurrentPage(pageNumber);
+    setParam({ page: pageNumber, limit });
+  };
+
+  const handleSetActiveTenantGroupId = (tenantId) => {
+    setParam({ page: 1, limit, tenantId });
   };
 
   return (
@@ -83,9 +74,9 @@ function ExpenseList() {
           fetchExpenseList={fetchExpenseList}
           activeTenantGroupId={activeTenantGroupId}
           handleCreateExpense={handleOpenCreateDialog}
-          setActiveTenantGroupId={setActiveTenantGroupId}
           handleFetchTenantGroup={handleFetchTenantGroup}
           handleOpenTenantGroupDialog={handleOpenTenantGroupDialog}
+          handleSetActiveTenantGroupId={handleSetActiveTenantGroupId}
         />
       </div>
 
@@ -93,16 +84,6 @@ function ExpenseList() {
         {/* Expense List table */}
         <ExpenseTable expenses={expenses} loading={loading} />
 
-        {/* <button
-          className="text-white bg-amber-500 cursor-pointer"
-          onClick={() => {
-            const newParams = new URLSearchParams(searchParams.toString());
-            newParams.set("page", "2");
-            setSearchParams(newParams);
-          }}
-        >
-          increase
-        </button> */}
         <PaginationContainer
           paginatefn={paginate}
           totalPages={totalPages}

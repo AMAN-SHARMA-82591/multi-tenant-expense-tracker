@@ -19,12 +19,13 @@ const TenantSchema = new Schema(
       enum: ["personal", "group"],
       default: "personal",
     },
-    // description: {
-    //   type: String,
-    //   trim: true,
-    //   minlength: [1, "Description must be at least 1 character"],
-    //   maxlength: [1000, "Description must be at most 1000 characters"],
-    // },
+    description: {
+      type: String,
+      trim: true,
+      required: [true, "Description is required"],
+      minlength: [1, "Description must be at least 1 character"],
+      maxlength: [1000, "Description must be at most 1000 characters"],
+    },
   },
   {
     strict: true,

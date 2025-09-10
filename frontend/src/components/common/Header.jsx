@@ -1,12 +1,13 @@
-import { HiMoon, HiSun } from "react-icons/hi";
+import { HiUserCircle } from "react-icons/hi";
 import { useAuth } from "../utils/contextApi";
 import { Link, useLocation } from "react-router";
+import DarkModeToggle from "./DarkModeToggle";
 
 export default function Header() {
   const location = useLocation();
 
   const isActive = (path) => location.pathname === path;
-  const { logout, darkMode, toggleDarkMode } = useAuth();
+  const { user, logout } = useAuth();
   return (
     <header className="sticky top-0 z-40 border-b dark:bg-gray-800 dark:border-gray-700 bg-white border-gray-200">
       <div className="flex items-center justify-between px-4 py-3">
@@ -36,23 +37,20 @@ export default function Header() {
         </div>
 
         <div className="flex items-center space-x-2">
-          {/* Dark Mode Toggle */}
-          <button
-            onClick={toggleDarkMode}
-            className="p-2 rounded-lg transition-colors dark:hover:bg-gray-700 text-gray-600 hover:bg-gray-200 dark:text-gray-300"
-          >
-            {darkMode ? (
-              <HiSun className="w-5 h-5" />
-            ) : (
-              <HiMoon className="w-5 h-5" />
-            )}
-          </button>
           <button
             onClick={logout}
             className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors"
           >
             Logout
           </button>
+          {/* Dark Mode Toggle */}
+          <DarkModeToggle />
+          <div className="flex items-center space-x-2">
+            <h2 className="font-medium text-gray-800 dark:text-gray-200">
+              {user.username}
+            </h2>
+            <HiUserCircle className="text-gray-600 dark:text-gray-300 w-5 h-5" />
+          </div>
         </div>
       </div>
     </header>

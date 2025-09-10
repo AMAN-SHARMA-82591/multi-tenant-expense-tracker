@@ -33,6 +33,9 @@ const NewTenantGroup = ({
       if (error.inner) {
         const messages = error.inner.map((err) => err.message).join("\n");
         alert(messages);
+      } else if (error.response) {
+        const messages = error.response?.data?.message || error.message;
+        alert(messages);
       } else {
         alert(error.message);
       }

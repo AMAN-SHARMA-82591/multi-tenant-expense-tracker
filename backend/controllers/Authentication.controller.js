@@ -6,6 +6,7 @@ import UserModel from "../model/User.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { loginSchema, registerSchema } from "../validators/authSchema.js";
 import TenantModel from "../model/Tenant.model.js";
+import { customTenantDescription } from "../utils/constants.js";
 
 export const signUp = asyncHandler(async (req, res) => {
   const { success, data, error } = registerSchema.safeParse(req.body);
@@ -34,6 +35,8 @@ export const signUp = asyncHandler(async (req, res) => {
   const personalTenant = await TenantModel.create({
     name: username,
     userId: user._id,
+    description: customTenantDescription,
+    type: "personal",
   });
 
   user.tenantId = personalTenant._id;

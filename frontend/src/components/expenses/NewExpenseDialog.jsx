@@ -24,7 +24,7 @@ const NewExpenseDialog = ({
     setPending(true);
     try {
       await createExpenseSchema.validate(formData, { abortEarly: false });
-      const response = await axiosInstance.post("/expense", {
+      const response = await axiosInstance.post(`/expense/create`, {
         ...formData,
         tenantId: activeTenantGroupId,
         amount: parseFloat(formData.amount),
@@ -40,6 +40,9 @@ const NewExpenseDialog = ({
     } catch (error) {
       if (error.inner) {
         const messages = error.inner.map((err) => err.message).join("\n");
+        alert(messages);
+      } else if (error.response) {
+        const messages = error.response?.data?.message || error.message;
         alert(messages);
       } else {
         alert(error.message);
