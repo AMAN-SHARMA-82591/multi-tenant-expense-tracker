@@ -4,6 +4,7 @@ import { useAuth } from "./utils/contextApi";
 import axiosInstance from "./utils/AxiosInstance";
 import { registerSchema } from "./utils/formValidate";
 import DarkModeToggle from "./common/DarkModeToggle";
+import { toastError } from "./common/ToastContainer";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ function Register() {
       await registerSchema.validate(formData, { abortEarly: false });
       const response = await axiosInstance.post("/auth/sign-up", formData);
       if (response.error) {
-        alert(response.error);
+        toastError(response.error);
       } else {
         login(response.data);
         navigate("/");
@@ -30,12 +31,12 @@ function Register() {
     } catch (error) {
       if (error.inner) {
         const messages = error.inner.map((err) => err.message).join("\n");
-        alert(messages);
+        toastError(messages);
       } else if (error.response) {
         const messages = error.response?.data?.message || error.message;
-        alert(messages);
+        toastError(messages);
       } else {
-        alert(error.message);
+        toastError(error.message);
       }
     } finally {
       setLoading(false);

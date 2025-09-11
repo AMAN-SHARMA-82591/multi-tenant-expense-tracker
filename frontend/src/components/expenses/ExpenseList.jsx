@@ -6,6 +6,7 @@ import ExpenseSidebar from "./ExpenseSidebar";
 import NewExpenseDialog from "./NewExpenseDialog";
 import NewTenantGroup from "./NewTenantGroup";
 import { useQueryParams } from "../hooks/useQueryParams";
+import ExpenseHeader from "./ExpenseHeader";
 
 const limit = 10;
 
@@ -73,7 +74,6 @@ function ExpenseList() {
           tenantGroup={tenantGroup}
           fetchExpenseList={fetchExpenseList}
           activeTenantGroupId={activeTenantGroupId}
-          handleCreateExpense={handleOpenCreateDialog}
           handleFetchTenantGroup={handleFetchTenantGroup}
           handleOpenTenantGroupDialog={handleOpenTenantGroupDialog}
           handleSetActiveTenantGroupId={handleSetActiveTenantGroupId}
@@ -81,6 +81,18 @@ function ExpenseList() {
       </div>
 
       <div className="w-full min-h-screen transition-colors duration-200 mx-auto p-4 dark:bg-gray-800 dark:border-gray-700">
+        <ExpenseHeader
+          onCreateExpense={handleOpenCreateDialog}
+          onInviteUsers={() => {}}
+          onSearch={() => {}}
+          onSort={() => {}}
+          onFilter={() => {}}
+          sortOrder=""
+          filterValue=""
+          searchValue="Search Expense"
+          activeTenantGroupId={activeTenantGroupId}
+        />
+
         {/* Expense List table */}
         <ExpenseTable expenses={expenses} loading={loading} />
 

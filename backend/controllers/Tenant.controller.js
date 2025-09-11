@@ -143,7 +143,11 @@ export const inviteUser = asyncHandler(async (req, res) => {
       .json({ success: false, error: z.flattenError(error).fieldErrors });
   }
 
-  const { targetUserEmail, title, message } = data;
+  const { email, message } = data;
+
+  if (req.user.email === email) {
+    throw new ApiError("You cannot invite yourself", 400);
+  }
   const isTenantExist = await TenantModel.findOne({
     _id: tenantId,
     userId: initiatorId,
@@ -168,16 +172,14 @@ export const inviteUser = asyncHandler(async (req, res) => {
   }
 
   // Validate user if email is registered or not.
-  const isUserExist = await UserModel.findOne({ email: targetUserEmail })
-    .select("_id")
-    .lean();
+  const isUserExist = await UserModel.findOne({ email }).select("_id").lean();
   if (!isUserExist) {
-    throw new ApiError(`User with email: ${targetUserEmail} not found`, 404);
+    throw new ApiError(`User with email: ${email} not found`, 404);
   }
 
   const isGroupInviteNotificationExist =
     await GroupInviteNotificationModel.findOne({
-      inviteEmail: targetUserEmail,
+      inviteEmail: email,
     })
       .lean()
       .select("_id");
@@ -186,24 +188,23 @@ export const inviteUser = asyncHandler(async (req, res) => {
 
   // Create notification
   const notification = await GroupInviteNotificationModel.create({
-    title,
     message,
     tenantId,
     read: false,
     // sendBy: initiatorId,
     inviteResponse: "pending",
-    inviteEmail: targetUserEmail,
+    inviteEmail: email,
   });
 
   // Emit via socket if online
-  // const socketId = emailSocketMap.get(targetUserEmail);
+  // const socketId = emailSocketMap.get(email);
   // if (socketId) {
   //   socketIo.to(socketId).emit("notification", notification);
   // }
 
   return res.status(200).json({
     success: true,
-    message: `Notification sent to ${targetUserEmail}`,
+    message: `Notification sent to ${email}`,
     notification,
   });
 });
@@ -250,7 +251,7 @@ export const responseInvite = asyncHandler(async (req, res) => {
 
     await GroupInviteNotificationModel.updateOne(
       { _id: inviteId },
-      { inviteResponse: "accepted" }
+      { inviteResponse: "accepted", read: true }
     );
 
     return res.status(200).json({
@@ -260,7 +261,7 @@ export const responseInvite = asyncHandler(async (req, res) => {
   } else {
     await GroupInviteNotificationModel.updateOne(
       { _id: inviteId },
-      { inviteResponse: "rejected" }
+      { inviteResponse: "rejected", read: true }
     );
 
     return res.status(200).json({

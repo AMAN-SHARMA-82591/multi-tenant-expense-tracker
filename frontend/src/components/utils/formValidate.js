@@ -76,3 +76,18 @@ export const createTenantGroupSchema = yup.object().shape({
     .min(3, "Description must be at least 3 characters")
     .max(100, "Description must be at most 100 characters"),
 });
+
+export const tenantGroupInviteSchema = yup.object().shape({
+  email: yup
+    .string()
+    .email()
+    .required("Email Field is required")
+    .trim()
+    .required("Email is required"),
+  message: yup
+    .string()
+    .trim()
+    .required("Message is required")
+    .min(3, "Message must be at least 3 characters")
+    .max(200, "Message must be at most 200 characters"),
+});

@@ -15,17 +15,17 @@ export const tenantSchema = z.object({
 });
 
 export const tenantUserInviteSchema = z.object({
-  targetUserEmail: z.email("Please enter a valid email"),
-  title: z
-    .string()
-    .trim()
-    .min(3, "Title must be at least 3 characters")
-    .max(1000, "Title must be at most 100 characters"),
+  email: z.email("Please enter a valid email"),
+  // title: z
+  //   .string()
+  //   .trim()
+  //   .min(3, "Title must be at least 3 characters")
+  //   .max(1000, "Title must be at most 100 characters"),
   message: z
     .string()
     .trim()
     .min(3, "Message must be at least 3 characters")
-    .max(1000, "Message must be at most 100 characters"),
+    .max(200, "Message must be at most 100 characters"),
 });
 
 export const inviteResponseSchema = z.object({

@@ -5,7 +5,6 @@ import ReportDropdown from "../common/ReportDropdown";
 
 export default function ExpenseSidebar({
   tenantGroup,
-  handleCreateExpense,
   activeTenantGroupId,
   handleFetchTenantGroup,
   handleOpenTenantGroupDialog,
@@ -25,12 +24,6 @@ export default function ExpenseSidebar({
     return (
       <aside className="h-screen w-[319px] flex flex-col py-6 px-4 shadow-lg dark:bg-gray-800 dark:text-white dark:border-r-1 dark:border-gray-700  bg-white border-r-1 border-gray-200 text-gray-900 transition-colors duration-200">
         <div className="flex flex-col gap-2 mb-6">
-          <button
-            onClick={handleCreateExpense}
-            className="flex items-center gap-2 px-3 py-2 rounded bg-green-500 text-white hover:bg-green-600 transition"
-          >
-            <FaPen /> Create New Expense
-          </button>
           <button
             onClick={handleOpenTenantGroupDialog}
             className="flex items-center gap-2 px-3 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition"
