@@ -59,9 +59,12 @@ export default function Header() {
 
   const handleInviteResponse = async (inviteId, responseType) => {
     try {
-      const response = await axiosInstance.patch(`/tenant/invite/${inviteId}/response`, {
-        responseType,
-      });
+      const response = await axiosInstance.patch(
+        `/tenant/invite/${inviteId}/response`,
+        {
+          responseType,
+        }
+      );
       if (response.data.success) {
         setNotificationList((prev) => ({
           ...prev,
@@ -109,6 +112,7 @@ export default function Header() {
 
         <div className="flex items-center space-x-2">
           <button
+            title="Notifications"
             onClick={handleToggleNotification}
             className="p-2 rounded-lg transition-colors dark:hover:bg-gray-700 text-gray-600 hover:bg-gray-200 dark:text-gray-300"
           >

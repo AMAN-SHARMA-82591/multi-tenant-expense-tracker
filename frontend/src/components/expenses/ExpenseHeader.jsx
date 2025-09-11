@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Dialog from "@mui/material/Dialog";
 import {
   FaPlus,
   FaUserPlus,
   FaSearch,
+  FaUsers,
   FaSortAmountDown,
   FaSortAmountUp,
 } from "react-icons/fa";
@@ -11,6 +12,9 @@ import SubmitButton from "../common/SubmitButton";
 import { toastError, toastSuccess } from "../common/ToastContainer";
 import axiosInstance from "../utils/AxiosInstance";
 import { tenantGroupInviteSchema } from "../utils/formValidate";
+import Badge from "@mui/material/Badge";
+import Popover from "@mui/material/Popover";
+import UserListItem from "../common/UserListItem";
 
 const initialValues = {
   email: "",
@@ -25,13 +29,16 @@ export default function ExpenseHeader({
   sortOrder = "asc",
   filterValue = "",
   searchValue = "",
-  activeTenantGroupId,
+  selectedTenantGroup,
 }) {
-  const [formData, setFormData] = useState(initialValues);
   const [pending, setPending] = useState(false);
   const [search, setSearch] = useState(searchValue);
   const [filter, setFilter] = useState(filterValue);
   const [openDialog, setOpenDialog] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [formData, setFormData] = useState(initialValues);
+  const [tenantGroupUsers, setTenantGroupUsers] = useState([]);
+  const [toggleUsersPopover, setToggleUsersPopover] = useState(false);
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
@@ -47,13 +54,33 @@ export default function ExpenseHeader({
     if (onSort) onSort(sortOrder === "asc" ? "desc" : "asc");
   };
 
+  const handleFetchTenantGroupUsers = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get(
+        `/tenant/${selectedTenantGroup?.tenant?._id}/users`
+      );
+      if (response.data.success) {
+        setTenantGroupUsers(response.data);
+      }
+    } catch (error) {
+      console.error(error);
+      toastError("Failed to fetch list of tenant group users.");
+    }
+  }, [selectedTenantGroup?.tenant?._id]);
+
+  useEffect(() => {
+    if (selectedTenantGroup?.tenant?._id) {
+      handleFetchTenantGroupUsers();
+    }
+  }, [selectedTenantGroup?.tenant?._id, handleFetchTenantGroupUsers]);
+
   const handleSubmitInvite = async (event) => {
     event.preventDefault();
     setPending(true);
     try {
       await tenantGroupInviteSchema.validate(formData, { abortEarly: false });
       const response = await axiosInstance.post(
-        `/tenant/${activeTenantGroupId}/invite`,
+        `/tenant/${selectedTenantGroup?.tenant?._id}/invite`,
         formData
       );
       if (response.data.success) {
@@ -83,14 +110,48 @@ export default function ExpenseHeader({
         >
           <FaPlus /> Create New Expense
         </button>
-        {activeTenantGroupId && (
+        {selectedTenantGroup?.tenant?._id &&
+          selectedTenantGroup?.role === "owner" && (
+            <button
+              onClick={() => setOpenDialog(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition"
+            >
+              <FaUserPlus /> Invite Users
+            </button>
+          )}
+        {selectedTenantGroup?.tenant?._id && (
           <button
-            onClick={() => setOpenDialog(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition"
+            title="Joined Users"
+            onClick={(event) => {
+              event.preventDefault();
+              setAnchorEl(event.currentTarget);
+              setToggleUsersPopover(true);
+            }}
+            disabled={tenantGroupUsers?.total === 0}
+            className="py-2 px-4 cursor-pointer rounded-lg transition-colors dark:hover:bg-gray-700 text-gray-600 hover:bg-gray-200 dark:text-gray-300 disabled:opacity-50 disabled:cursor-default"
           >
-            <FaUserPlus /> Invite Users
+            <Badge badgeContent={tenantGroupUsers?.total || 0} color="primary">
+              <FaUsers className="text-gray-600 dark:text-gray-300 w-7 h-7" />
+            </Badge>
           </button>
         )}
+        <Popover
+          open={toggleUsersPopover}
+          anchorEl={anchorEl}
+          onClose={() => {
+            setToggleUsersPopover(false);
+            setAnchorEl(null);
+          }}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "center",
+          }}
+        >
+          {tenantGroupUsers?.total > 0 &&
+            tenantGroupUsers?.data.map((user) => (
+              <UserListItem key={user._id} user={user} />
+            ))}
+        </Popover>
       </div>
       <div className="flex gap-2 items-center">
         {/* Search */}

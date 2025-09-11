@@ -7,6 +7,7 @@ import { generateAISummary } from "../config/geminiAi.js";
 import buildExpenseSummaryPrompt from "../utils/aiPrompt.js";
 import { personalExpenseSchema } from "../validators/expenseSchema.js";
 import TenantModel from "../model/Tenant.model.js";
+import TenantMembershipModel from "../model/TenantMembership.model.js";
 
 export const getExpenseList = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -31,10 +32,9 @@ export const getExpenseList = asyncHandler(async (req, res) => {
     }
     tenantId = isPersonalTenentExists._id;
   } else {
-    const isTenantGroupExists = await TenantModel.findOne({
-      _id: tenantId,
+    const isTenantGroupExists = await TenantMembershipModel.findOne({
       userId: req.uid,
-      type: "group",
+      tenantId: tenantId,
     })
       .lean()
       .select("_id");
@@ -46,7 +46,7 @@ export const getExpenseList = asyncHandler(async (req, res) => {
   const [result] = await ExpenseModel.aggregate([
     {
       $match: {
-        createdBy: ObjectId(req.uid),
+        // createdBy: ObjectId(req.uid),
         tenantId: ObjectId(tenantId),
       },
     },

@@ -7,6 +7,7 @@ import NewExpenseDialog from "./NewExpenseDialog";
 import NewTenantGroup from "./NewTenantGroup";
 import { useQueryParams } from "../hooks/useQueryParams";
 import ExpenseHeader from "./ExpenseHeader";
+import { toastError } from "../common/ToastContainer";
 
 const limit = 10;
 
@@ -17,6 +18,7 @@ function ExpenseList() {
   const [tenantGroup, setTenantGroupList] = useState([]);
   const [openTenantGroup, setOpenTenantGroup] = useState(false);
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
+  const [selectedTenantGroup, setSelectedTenantGroup] = useState(null);
 
   // Getting URL Params
   const currentPage = Number(getParam("page")) || 1;
@@ -42,8 +44,13 @@ function ExpenseList() {
 
   const handleFetchTenantGroup = useCallback(async () => {
     const response = await axiosInstance.get("/tenant");
-    if (response.data.success) {
-      setTenantGroupList(response.data.data.group);
+    try {
+      if (response.data.success) {
+        setTenantGroupList(response.data.data);
+      }
+    } catch (error) {
+      console.error(error);
+      toastError("Failed to fetch tenant groups.");
     }
   }, []);
 
@@ -75,6 +82,7 @@ function ExpenseList() {
           fetchExpenseList={fetchExpenseList}
           activeTenantGroupId={activeTenantGroupId}
           handleFetchTenantGroup={handleFetchTenantGroup}
+          setSelectedTenantGroup={setSelectedTenantGroup}
           handleOpenTenantGroupDialog={handleOpenTenantGroupDialog}
           handleSetActiveTenantGroupId={handleSetActiveTenantGroupId}
         />
@@ -90,7 +98,7 @@ function ExpenseList() {
           sortOrder=""
           filterValue=""
           searchValue="Search Expense"
-          activeTenantGroupId={activeTenantGroupId}
+          selectedTenantGroup={selectedTenantGroup}
         />
 
         {/* Expense List table */}

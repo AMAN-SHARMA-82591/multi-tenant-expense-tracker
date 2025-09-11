@@ -13,6 +13,7 @@ import ExpenseModel from "../model/Expense.model.js";
 // import { socketIo } from "../index.js";
 import TenantMembershipModel from "../model/TenantMembership.model.js";
 import GroupInviteNotificationModel from "../model/Notification.model.js";
+import { ObjectId } from "../utils/constants.js";
 
 export const getTenant = asyncHandler(async (req, res) => {
   const tenantDetails = await TenantModel.findOne({
@@ -25,19 +26,116 @@ export const getTenant = asyncHandler(async (req, res) => {
 });
 
 export const getTenantList = asyncHandler(async (req, res) => {
-  const tenantGroupList = await TenantModel.find({
-    userId: req.uid,
-    type: "group",
-  })
-    .sort({ name: 1 })
-    .lean();
+  const userId = req.uid;
+
+  const [result] = await TenantMembershipModel.aggregate([
+    {
+      $match: { userId: ObjectId(userId) },
+    },
+    {
+      $facet: {
+        data: [
+          {
+            $lookup: {
+              from: "tenants",
+              localField: "tenantId",
+              foreignField: "_id",
+              as: "tenant",
+            },
+          },
+          { $unwind: "$tenant" },
+          {
+            $lookup: {
+              from: "users",
+              localField: "userId",
+              foreignField: "_id",
+              as: "user",
+            },
+          },
+          { $unwind: "$user" },
+          {
+            $project: {
+              _id: 1,
+              role: 1,
+              permissiona: 1,
+              joinedAt: 1,
+              user: {
+                _id: 1,
+                username: 1,
+                email: 1,
+              },
+              tenant: {
+                _id: 1,
+                name: 1,
+                type: 1,
+                description: 1,
+                createdAt: 1,
+              },
+            },
+          },
+        ],
+        totalCount: [{ $count: "count" }],
+      },
+    },
+  ]);
+
+  const data = result.data;
+  const total = result.totalCount[0]?.count || 0;
   return res.status(200).json({
     success: true,
-    data: { group: tenantGroupList, total: tenantGroupList.length },
+    data,
+    total,
   });
 });
 
-export const getTenantUsers = asyncHandler(async (req, res) => {});
+export const getTenantUsers = asyncHandler(async (req, res) => {
+  const { id: tenantId } = req.params;
+  const userId = req.uid;
+  const [result] = await TenantMembershipModel.aggregate([
+    {
+      $match: {
+        tenantId: ObjectId(tenantId),
+        userId: { $ne: ObjectId(userId) },
+      },
+    },
+    {
+      $facet: {
+        data: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "userId",
+              foreignField: "_id",
+              as: "user",
+            },
+          },
+          { $unwind: "$user" },
+          {
+            $project: {
+              _id: 1,
+              role: 1,
+              joinedAt: 1,
+              user: {
+                _id: 1,
+                username: 1,
+                email: 1,
+              },
+            },
+          },
+        ],
+        totalCount: [{ $count: "count" }],
+      },
+    },
+  ]);
+
+  const data = result.data;
+  const total = result.totalCount[0]?.count || 0;
+  return res.status(200).json({
+    success: true,
+    data,
+    total,
+  });
+});
 
 export const createTenant = asyncHandler(async (req, res) => {
   const { data, error, success } = tenantSchema.safeParse(req.body);

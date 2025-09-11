@@ -6,6 +6,7 @@ import ReportDropdown from "../common/ReportDropdown";
 export default function ExpenseSidebar({
   tenantGroup,
   activeTenantGroupId,
+  setSelectedTenantGroup,
   handleFetchTenantGroup,
   handleOpenTenantGroupDialog,
   handleSetActiveTenantGroupId,
@@ -17,6 +18,15 @@ export default function ExpenseSidebar({
     if (response.data.success) {
       handleSetActiveTenantGroupId(null);
       handleFetchTenantGroup();
+    }
+  };
+
+  const handleSetActiveGroup = (group) => {
+    setSelectedTenantGroup(group);
+    if (group) {
+      handleSetActiveTenantGroupId(group.tenant?._id);
+    } else {
+      handleSetActiveTenantGroupId(null);
     }
   };
 
@@ -32,8 +42,8 @@ export default function ExpenseSidebar({
           </button>
           <ReportDropdown />
           <button
-            onClick={() => handleSetActiveTenantGroupId(null)}
-            className={`flex items-center gap-2 px-3 py-2 rounded ${
+            onClick={() => handleSetActiveGroup(null)}
+            className={`flex cursor-pointer items-center gap-2 px-3 py-2 rounded ${
               activeTenantGroupId === null
                 ? "bg-blue-100 dark:bg-blue-900 font-bold"
                 : "hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -49,28 +59,31 @@ export default function ExpenseSidebar({
             <FaUserFriends />
             Groups
           </h3>
-          {tenantGroup.length === 0 ? (
+          {tenantGroup.total === 0 ? (
             <div className="text-gray-400 text-sm">No groups joined yet.</div>
           ) : (
             <ul className="space-y-1">
               {tenantGroup.map((group) => (
-                <li key={group._id}>
-                  <div
-                    onClick={() => handleSetActiveTenantGroupId(group._id)}
-                    className={`w-full text-left px-3 py-2 flex justify-between items-center rounded ${
-                      activeTenantGroupId === group._id
-                        ? "bg-blue-100 dark:bg-blue-900 font-bold"
-                        : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                    } transition`}
+                <li
+                  key={group._id}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    handleSetActiveGroup(group);
+                  }}
+                  className={`w-full cursor-pointer text-left px-3 py-2 flex justify-between items-center rounded ${
+                    activeTenantGroupId === group?.tenant?._id
+                      ? "bg-blue-100 dark:bg-blue-900 font-bold"
+                      : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                  } transition`}
+                >
+                  <span>{group?.tenant?.name || "Tenant Group"}</span>
+                  <button
+                    title="Delete Group"
+                    onClick={() => handleDeleteTenantGroup(group?.tenant?._id)}
+                    className="text-red-500 hover:text-red-700 cursor-pointer"
                   >
-                    <span>{group.name}</span>
-                    <button
-                      onClick={() => handleDeleteTenantGroup(group._id)}
-                      className="text-red-500 hover:text-red-700 cursor-pointer"
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
+                    <FaTrash />
+                  </button>
                 </li>
               ))}
             </ul>

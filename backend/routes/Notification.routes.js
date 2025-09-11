@@ -13,54 +13,58 @@ router.get(
   asyncHandler(async (req, res) => {
     const userEmail = req.user.email;
 
-    const notifications = await GroupInviteNotificationModel.aggregate([
+    const [result] = await GroupInviteNotificationModel.aggregate([
       { $match: { inviteEmail: userEmail } },
       {
-        $lookup: {
-          from: "tenants",
-          localField: "tenantId",
-          foreignField: "_id",
-          as: "tenant",
-        },
-      },
-      { $unwind: "$tenant" },
-      {
-        $lookup: {
-          from: "users",
-          localField: "tenant.userId",
-          foreignField: "_id",
-          as: "user",
-        },
-      },
-      { $unwind: "$user" },
-      {
-        $project: {
-          _id: 1,
-          _inviteEmail: 1,
-          title: 1,
-          message: 1,
-          read: 1,
-          inviteResponse: 1,
-          tenant: {
-            _id: 1,
-            name: 1,
-          },
-          user: {
-            _id: 1,
-            username: 1,
-            email: 1,
-          },
+        $facet: {
+          data: [
+            {
+              $lookup: {
+                from: "tenants",
+                localField: "tenantId",
+                foreignField: "_id",
+                as: "tenant",
+              },
+            },
+            { $unwind: "$tenant" },
+            {
+              $lookup: {
+                from: "users",
+                localField: "tenant.userId",
+                foreignField: "_id",
+                as: "user",
+              },
+            },
+            { $unwind: "$user" },
+            {
+              $project: {
+                _id: 1,
+                _inviteEmail: 1,
+                title: 1,
+                message: 1,
+                read: 1,
+                inviteResponse: 1,
+                tenant: {
+                  _id: 1,
+                  name: 1,
+                },
+                user: {
+                  _id: 1,
+                  username: 1,
+                  email: 1,
+                },
+              },
+            },
+          ],
+          total: [{ $count: "count" }],
         },
       },
     ]);
-    if (!notifications)
-      return res
-        .status(404)
-        .json({ success: true, message: "No notifications found" });
-    else
-      return res
-        .status(200)
-        .json({ success: true, notifications, total: notifications.length });
+
+    const notifications = result.data;
+    const total = result.total[0]?.count || 0;
+
+    return res.status(200).json({ success: true, notifications, total });
   })
 );
 

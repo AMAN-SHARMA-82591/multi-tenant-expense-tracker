@@ -1,3 +1,4 @@
+export const DateFormat = (date) => new Date(date).toLocaleDateString();
 export const MONTH = [
   "January",
   "February",
