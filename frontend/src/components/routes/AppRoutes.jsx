@@ -1,13 +1,14 @@
-import { Suspense } from "react";
+import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router";
 import { ToastContainer } from "react-toastify";
-import Login from "../Login";
-import Register from "../Register";
-import ChatPage from "../chat/ChatPage";
 import { useAuth } from "../utils/contextApi";
-import ExpenseList from "../expenses/ExpenseList";
 import ProtectedRoute from "../common/ProtectedRoute";
 import AppLayout from "../common/AppLayout";
+
+const Login = lazy(() => import("../Login"));
+const Register = lazy(() => import("../Register"));
+const ChatPage = lazy(() => import("../chat/ChatPage"));
+const ExpenseList = lazy(() => import("../expenses/ExpenseList"));
 
 export default function AppRoutes() {
   const { user, darkMode } = useAuth();

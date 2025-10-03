@@ -62,6 +62,17 @@ function ExpenseList() {
     handleFetchTenantGroup();
   }, [handleFetchTenantGroup]);
 
+  useEffect(() => {
+    if (tenantGroup.length > 0 && activeTenantGroupId) {
+      const selectedGroup = tenantGroup.find(
+        (group) => group.tenant?._id === activeTenantGroupId
+      );
+      setSelectedTenantGroup(selectedGroup || null);
+    } else if (!activeTenantGroupId) {
+      setSelectedTenantGroup(null);
+    }
+  }, [tenantGroup, activeTenantGroupId]);
+
   const handleOpenCreateDialog = () => setOpenCreateDialog(!openCreateDialog);
   const handleOpenTenantGroupDialog = () =>
     setOpenTenantGroup(!openTenantGroup);
@@ -82,7 +93,6 @@ function ExpenseList() {
           fetchExpenseList={fetchExpenseList}
           activeTenantGroupId={activeTenantGroupId}
           handleFetchTenantGroup={handleFetchTenantGroup}
-          setSelectedTenantGroup={setSelectedTenantGroup}
           handleOpenTenantGroupDialog={handleOpenTenantGroupDialog}
           handleSetActiveTenantGroupId={handleSetActiveTenantGroupId}
         />

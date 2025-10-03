@@ -4,7 +4,7 @@ const ExpenseTable = ({ expenses, loading }) => {
     content = (
       <tbody className="text-gray-500 dark:text-gray-400">
         <tr>
-          <td className="px-6 py-4" colSpan={4}>
+          <td className="text-center px-6 py-4" colSpan="4">
             Loading expenses...
           </td>
         </tr>
@@ -14,7 +14,7 @@ const ExpenseTable = ({ expenses, loading }) => {
     content = (
       <tbody className="text-gray-600 dark:text-gray-400">
         <tr>
-          <td className="px-6 py-4" colSpan={4}>
+          <td className="text-center px-6 py-4" colSpan="4">
             No data present. Create expense.
           </td>
         </tr>

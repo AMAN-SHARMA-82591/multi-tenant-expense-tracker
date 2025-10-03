@@ -93,11 +93,11 @@ function Login() {
             {!loading ? "Login" : "loading"}
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-300">
+        <p className="mt-4 text-center text-sm text-gray-800 dark:text-gray-200">
           Don't have an account?{" "}
           <Link
             to="/register"
-            className="text-blue-500 dark:text-blue-600 hover:underline"
+            className="text-blue-700 dark:text-sky-300 hover:underline"
           >
             Register here
           </Link>

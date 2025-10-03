@@ -6,7 +6,6 @@ import ReportDropdown from "../common/ReportDropdown";
 export default function ExpenseSidebar({
   tenantGroup,
   activeTenantGroupId,
-  setSelectedTenantGroup,
   handleFetchTenantGroup,
   handleOpenTenantGroupDialog,
   handleSetActiveTenantGroupId,
@@ -21,10 +20,9 @@ export default function ExpenseSidebar({
     }
   };
 
-  const handleSetActiveGroup = (group) => {
-    setSelectedTenantGroup(group);
-    if (group) {
-      handleSetActiveTenantGroupId(group.tenant?._id);
+  const handleSetActiveGroup = (groupId) => {
+    if (groupId) {
+      handleSetActiveTenantGroupId(groupId);
     } else {
       handleSetActiveTenantGroupId(null);
     }
@@ -68,7 +66,7 @@ export default function ExpenseSidebar({
                   key={group._id}
                   onClick={(event) => {
                     event.stopPropagation();
-                    handleSetActiveGroup(group);
+                    handleSetActiveGroup(group?.tenant?._id);
                   }}
                   className={`w-full cursor-pointer text-left px-3 py-2 flex justify-between items-center rounded ${
                     activeTenantGroupId === group?.tenant?._id
