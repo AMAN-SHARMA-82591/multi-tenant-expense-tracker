@@ -9,7 +9,7 @@ import FileUpload from "./FileUpload";
 import { useChat } from "../utils/contextApi";
 
 const MessageInput = ({ chatId, onTyping }) => {
-  const { darkMode, sendMessage } = useChat();
+  const { sendMessage } = useChat();
   const [message, setMessage] = useState("");
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
@@ -114,11 +114,7 @@ const MessageInput = ({ chatId, onTyping }) => {
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className={`p-2 rounded-lg transition-colors ${
-            darkMode
-              ? "hover:bg-gray-700 text-gray-300"
-              : "hover:bg-gray-100 text-gray-600"
-          }`}
+          className="p-2 rounded-lg transition-colors hover:bg-gray-100 text-gray-600 dark:hover:bg-gray-700 dark:text-gray-300"
           title="Attach file"
         >
           <HiPaperClip className="w-5 h-5" />
@@ -138,24 +134,14 @@ const MessageInput = ({ chatId, onTyping }) => {
         <div className="relative">
           <button
             type="button"
-            className={`p-2 rounded-lg transition-colors ${
-              darkMode
-                ? "hover:bg-gray-700 text-gray-300"
-                : "hover:bg-gray-100 text-gray-600"
-            }`}
+            className="p-2 rounded-lg transition-colors hover:bg-gray-100 text-gray-600 dark:hover:bg-gray-700 dark:text-gray-300"
             title="Add emoji"
           >
             <HiEmojiHappy className="w-5 h-5" />
           </button>
 
           {/* Emoji dropdown */}
-          <div
-            className={`absolute bottom-full right-0 mb-2 p-2 rounded-lg shadow-lg border ${
-              darkMode
-                ? "bg-gray-800 border-gray-700"
-                : "bg-white border-gray-200"
-            }`}
-          >
+          <div className="absolute bottom-full right-0 mb-2 p-2 dark:bg-gray-800 dark:border-gray-700 bg-white border-gray-200 rounded-lg shadow-lg border">
             <div className="grid grid-cols-5 gap-1">
               {emojis.map((emoji, index) => (
                 <button
@@ -180,11 +166,7 @@ const MessageInput = ({ chatId, onTyping }) => {
             onKeyPress={handleKeyPress}
             placeholder="Type a message..."
             rows={1}
-            className={`w-full px-4 py-2 rounded-lg border resize-none transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              darkMode
-                ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                : "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500"
-            }`}
+            className="w-full px-4 py-2 rounded-lg border resize-none transition-colors focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 focus:ring-2 bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-blue-500"
             style={{
               minHeight: "44px",
               maxHeight: "120px",
@@ -193,11 +175,7 @@ const MessageInput = ({ chatId, onTyping }) => {
 
           {/* Character count */}
           {message.length > 0 && (
-            <div
-              className={`absolute -bottom-6 right-2 text-xs ${
-                darkMode ? "text-gray-400" : "text-gray-500"
-              }`}
-            >
+            <div className="absolute -bottom-6 right-2 dark:text-gray-400 text-xs text-gray-500">
               {message.length}/1000
             </div>
           )}
@@ -209,12 +187,8 @@ const MessageInput = ({ chatId, onTyping }) => {
           disabled={!message.trim()}
           className={`p-2 rounded-lg transition-colors ${
             message.trim()
-              ? darkMode
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "bg-blue-500 hover:bg-blue-600 text-white"
-              : darkMode
-              ? "bg-gray-700 text-gray-500 cursor-not-allowed"
-              : "bg-gray-200 text-gray-400 cursor-not-allowed"
+              ? "dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white bg-blue-500 hover:bg-blue-600 text-white"
+              : "dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed bg-gray-200 text-gray-400"
           }`}
           title="Send message"
         >
@@ -224,11 +198,7 @@ const MessageInput = ({ chatId, onTyping }) => {
 
       {/* Typing indicator for current user */}
       {isTyping && (
-        <div
-          className={`mt-2 text-xs ${
-            darkMode ? "text-gray-400" : "text-gray-500"
-          }`}
-        >
+        <div className="mt-2 text-xs dark:text-gray-400  text-gray-500$">
           You are typing...
         </div>
       )}

@@ -16,81 +16,81 @@ export const MONTH = [
 
 // Mock data
 export const mockUsers = [
-  // {
-  //   id: "1",
-  //   username: "John Doe",
-  //   email: "john@example.com",
-  //   avatar:
-  //     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-  //   status: "online",
-  // },
-  // {
-  //   id: "2",
-  //   username: "Jane Smith",
-  //   email: "jane@example.com",
-  //   avatar:
-  //     "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-  //   status: "online",
-  // },
-  // {
-  //   id: "3",
-  //   username: "Mike Johnson",
-  //   email: "mike@example.com",
-  //   avatar:
-  //     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-  //   status: "away",
-  // },
-  // {
-  //   id: "4",
-  //   username: "Sarah Wilson",
-  //   email: "sarah@example.com",
-  //   avatar:
-  //     "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-  //   status: "offline",
-  // },
-  // {
-  //   id: "5",
-  //   username: "David Brown",
-  //   email: "david@example.com",
-  //   avatar:
-  //     "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-  //   status: "online",
-  // },
+  {
+    id: "1",
+    username: "John Doe",
+    email: "john@example.com",
+    avatar:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+    status: "online",
+  },
+  {
+    id: "2",
+    username: "Jane Smith",
+    email: "jane@example.com",
+    avatar:
+      "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
+    status: "online",
+  },
+  {
+    id: "3",
+    username: "Mike Johnson",
+    email: "mike@example.com",
+    avatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+    status: "away",
+  },
+  {
+    id: "4",
+    username: "Sarah Wilson",
+    email: "sarah@example.com",
+    avatar:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+    status: "offline",
+  },
+  {
+    id: "5",
+    username: "David Brown",
+    email: "david@example.com",
+    avatar:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
+    status: "online",
+  },
 ];
 
 export const mockGroups = [
-  // {
-  //   id: "g1",
-  //   name: "Project Team",
-  //   description: "Main project discussion group",
-  //   avatar:
-  //     "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=150&h=150&fit=crop",
-  //   type: "group",
-  //   members: ["1", "2", "3", "4"],
-  //   admins: ["1"],
-  //   lastMessage: {
-  //     content: "Great work on the latest update!",
-  //     sender: "2",
-  //     timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-  //     unreadCount: 2,
-  //   },
-  // },
-  // {
-  //   id: "g2",
-  //   name: "Design Team",
-  //   description: "UI/UX design discussions",
-  //   avatar:
-  //     "https://images.unsplash.com/photo-1551434678-e076c223a692?w=150&h=150&fit=crop",
-  //   type: "group",
-  //   members: ["1", "2", "5"],
-  //   admins: ["2"],
-  //   lastMessage: {
-  //     content: "New design mockups are ready for review",
-  //     sender: "5",
-  //     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-  //     unreadCount: 0,
-  //   },
-  // },
+  {
+    id: "g1",
+    name: "Project Team",
+    description: "Main project discussion group",
+    avatar:
+      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=150&h=150&fit=crop",
+    type: "group",
+    members: ["1", "2", "3", "4"],
+    admins: ["1"],
+    lastMessage: {
+      content: "Great work on the latest update!",
+      sender: "2",
+      timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
+      unreadCount: 2,
+    },
+  },
+  {
+    id: "g2",
+    name: "Design Team",
+    description: "UI/UX design discussions",
+    avatar:
+      "https://images.unsplash.com/photo-1551434678-e076c223a692?w=150&h=150&fit=crop",
+    type: "group",
+    members: ["1", "2", "5"],
+    admins: ["2"],
+    lastMessage: {
+      content: "New design mockups are ready for review",
+      sender: "5",
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+      unreadCount: 0,
+    },
+  },
 ];
 
 export const chatMockMessages = {
@@ -149,7 +149,6 @@ export const chatInitialState = {
   currentChat: null,
   conversations: [...mockGroups, ...mockUsers.slice(1)], // Groups + direct chats
   typingUsers: {},
-  darkMode: false,
   sidebarOpen: true,
   unreadCounts: {},
   notifications: [],
@@ -161,7 +160,6 @@ export const chatActionTypes = {
   ADD_MESSAGE: "ADD_MESSAGE",
   SET_TYPING: "SET_TYPING",
   REMOVE_TYPING: "REMOVE_TYPING",
-  TOGGLE_DARK_MODE: "TOGGLE_DARK_MODE",
   TOGGLE_SIDEBAR: "TOGGLE_SIDEBAR",
   CREATE_GROUP: "CREATE_GROUP",
   ADD_NOTIFICATION: "ADD_NOTIFICATION",

@@ -9,7 +9,7 @@ const ConversationItem = ({
   subtitle,
   unreadCount,
 }) => {
-  const { setCurrentChat, currentChat, darkMode } = useChat();
+  const { setCurrentChat, currentChat } = useChat();
 
   const isSelected = currentChat?.id === conversation.id;
   const lastMessageTime = conversation.lastMessage?.timestamp;
@@ -36,28 +36,16 @@ const ConversationItem = ({
       onClick={handleClick}
       className={`p-4 cursor-pointer transition-colors duration-150 ${
         isSelected
-          ? darkMode
-            ? "bg-blue-600 text-white"
-            : "bg-blue-50 text-blue-900 border-r-2 border-blue-500"
-          : darkMode
-          ? "hover:bg-gray-700 text-gray-300"
-          : "hover:bg-gray-50 text-gray-900"
+          ? "dark:bg-blue-600 dark:text-white bg-blue-50 text-blue-900 border-r-2 border-blue-500"
+          : "dark:hover:bg-gray-700 dark:text-gray-300 hover:bg-gray-50 text-gray-900"
       }`}
     >
       <div className="flex items-center space-x-3">
         {/* Avatar */}
         <div className="relative flex-shrink-0">
           {conversation.type === "group" ? (
-            <div
-              className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                darkMode ? "bg-gray-600" : "bg-gray-200"
-              }`}
-            >
-              <HiUserGroup
-                className={`w-6 h-6 ${
-                  darkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              />
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center dark:bg-gray-600 bg-gray-200">
+              <HiUserGroup className="w-6 h-6 dark:text-gray-400 text-gray-600" />
             </div>
           ) : (
             <div className="relative">
@@ -69,9 +57,9 @@ const ConversationItem = ({
               {/* Online status indicator for direct chats */}
               {conversation.status && (
                 <div
-                  className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 ${
-                    darkMode ? "border-gray-800" : "border-white"
-                  } ${getStatusColor(conversation.status)}`}
+                  className={`absolute -bottom-1 -right-1 dark:border-gray-800 border-white w-3 h-3 rounded-full border-2 ${getStatusColor(
+                    conversation.status
+                  )}`}
                 />
               )}
             </div>
@@ -83,11 +71,7 @@ const ConversationItem = ({
           <div className="flex items-center justify-between mb-1">
             <h4
               className={`font-medium truncate ${
-                isSelected
-                  ? "text-white"
-                  : darkMode
-                  ? "text-white"
-                  : "text-gray-900"
+                isSelected ? "text-white" : "dark:text-white text-gray-900"
               }`}
             >
               {displayName}
@@ -97,9 +81,7 @@ const ConversationItem = ({
                 className={`text-xs flex-shrink-0 ml-2 ${
                   isSelected
                     ? "text-blue-100"
-                    : darkMode
-                    ? "text-gray-400"
-                    : "text-gray-500"
+                    : "dark:text-gray-400 text-gray-500"
                 }`}
               >
                 {formatDistanceToNow(lastMessageTime, { addSuffix: true })}
@@ -109,11 +91,7 @@ const ConversationItem = ({
 
           <p
             className={`text-sm truncate ${
-              isSelected
-                ? "text-blue-100"
-                : darkMode
-                ? "text-gray-400"
-                : "text-gray-600"
+              isSelected ? "text-blue-100" : "dark:text-gray-400 text-gray-600"
             }`}
           >
             {subtitle}
@@ -137,11 +115,7 @@ const ConversationItem = ({
         <div className="mt-2 flex items-center space-x-2">
           <span
             className={`text-xs ${
-              isSelected
-                ? "text-blue-200"
-                : darkMode
-                ? "text-gray-500"
-                : "text-gray-400"
+              isSelected ? "text-blue-200" : "dark:text-gray-500 text-gray-400"
             }`}
           >
             {conversation.members?.length || 0} members
@@ -151,9 +125,7 @@ const ConversationItem = ({
               className={`text-xs truncate ${
                 isSelected
                   ? "text-blue-200"
-                  : darkMode
-                  ? "text-gray-500"
-                  : "text-gray-400"
+                  : "dark:text-gray-500 text-gray-400"
               }`}
             >
               • {conversation.description}

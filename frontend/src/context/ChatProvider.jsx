@@ -51,12 +51,6 @@ function chatReducer(state, action) {
       };
     }
 
-    case chatActionTypes.TOGGLE_DARK_MODE:
-      return {
-        ...state,
-        darkMode: !state.darkMode,
-      };
-
     case chatActionTypes.TOGGLE_SIDEBAR:
       return {
         ...state,
@@ -170,10 +164,6 @@ export function ChatProvider({ children }) {
         type: chatActionTypes.REMOVE_TYPING,
         payload: { chatId, userId },
       });
-    },
-
-    toggleDarkMode: () => {
-      dispatch({ type: chatActionTypes.TOGGLE_DARK_MODE });
     },
 
     toggleSidebar: () => {

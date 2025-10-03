@@ -8,7 +8,6 @@ import { useChat } from "../utils/contextApi";
 const ChatWindow = () => {
   const {
     currentChat,
-    darkMode,
     sidebarOpen,
     toggleSidebar,
     getCurrentChatMessages,
@@ -49,11 +48,7 @@ const ChatWindow = () => {
   }
 
   return (
-    <div
-      className={`flex flex-col h-full ${
-        darkMode ? "bg-gray-900" : "bg-white"
-      }`}
-    >
+    <div className="flex flex-col h-full dark:bg-gray-900 bg-white">
       {/* Chat Header */}
       <ChatHeader chat={currentChat} />
 
@@ -68,11 +63,7 @@ const ChatWindow = () => {
       </div>
 
       {/* Message Input */}
-      <div
-        className={`border-t ${
-          darkMode ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
-        }`}
-      >
+      <div className="border-t dark:border-gray-700 dark:bg-gray-800 border-gray-200 bg-white">
         <MessageInput chatId={currentChat.id} onTyping={handleTyping} />
       </div>
 
@@ -80,11 +71,7 @@ const ChatWindow = () => {
       {!sidebarOpen && (
         <button
           onClick={toggleSidebar}
-          className={`md:hidden absolute top-20 left-4 z-30 p-2 rounded-full shadow-lg ${
-            darkMode
-              ? "bg-gray-800 text-white hover:bg-gray-700"
-              : "bg-white text-gray-900 hover:bg-gray-50"
-          }`}
+          className="md:hidden absolute top-20 left-4 z-30 p-2 rounded-full shadow-lg dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 bg-white text-gray-900 hover:bg-gray-50"
         >
           <HiArrowLeft className="w-5 h-5" />
         </button>

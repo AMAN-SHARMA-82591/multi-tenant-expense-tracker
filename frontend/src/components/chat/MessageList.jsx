@@ -4,7 +4,7 @@ import TypingIndicator from "./TypingIndicator";
 import { useChat } from "../utils/contextApi";
 
 const MessageList = ({ messages, chatId }) => {
-  const { darkMode, isUserTyping, currentUser } = useChat();
+  const { isUserTyping, currentUser } = useChat();
   const messagesEndRef = useRef(null);
   const scrollContainerRef = useRef(null);
 
@@ -56,11 +56,7 @@ const MessageList = ({ messages, chatId }) => {
 
     return (
       <div className="flex justify-center my-4">
-        <div
-          className={`px-3 py-1 rounded-full text-xs font-medium ${
-            darkMode ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-600"
-          }`}
-        >
+        <div className="px-3 py-1 rounded-full text-xs font-medium dark:bg-gray-700 dark:text-gray-300 bg-gray-200 text-gray-600">
           {dateText}
         </div>
       </div>
@@ -70,16 +66,8 @@ const MessageList = ({ messages, chatId }) => {
   const renderMessages = () => {
     if (messageGroups.length === 0) {
       return (
-        <div
-          className={`flex flex-col items-center justify-center h-full text-center ${
-            darkMode ? "text-gray-400" : "text-gray-500"
-          }`}
-        >
-          <div
-            className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
-              darkMode ? "bg-gray-800" : "bg-gray-200"
-            }`}
-          >
+        <div className="flex flex-col items-center dark:text-gray-400 text-gray-500 justify-center h-full text-center">
+          <div className="w-16 h-16 mx-auto mb-4 dark:bg-gray-800 bg-gray-200 rounded-full flex items-center justify-center $">
             <svg
               className="w-8 h-8"
               fill="none"
@@ -132,11 +120,7 @@ const MessageList = ({ messages, chatId }) => {
     >
       {/* Welcome message for new chats */}
       {messages.length === 0 && (
-        <div
-          className={`text-center py-8 ${
-            darkMode ? "text-gray-400" : "text-gray-500"
-          }`}
-        >
+        <div className="text-center py-8 dark:text-gray-400 text-gray-500">
           <p className="text-sm">This is the beginning of your conversation</p>
         </div>
       )}

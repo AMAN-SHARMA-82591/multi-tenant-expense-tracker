@@ -13,21 +13,20 @@ const ChatDashboard = () => {
     currentChat,
     toggleSidebar,
     conversations,
-    getUnreadCount,
-    addNotification,
+    // getUnreadCount,
+    // addNotification,
   } = useChat();
   const { user } = useAuth();
   const socket = useRef();
-  const [showCreateGroup, setShowCreateGroup] = useState(false);
-  const [totalUnread, setTotalUnread] = useState(0);
+  // const [totalUnread, setTotalUnread] = useState(0);
 
   // Calculate total unread messages
-  useEffect(() => {
-    const total = conversations.reduce((sum, conv) => {
-      return sum + getUnreadCount(conv.id);
-    }, 0);
-    setTotalUnread(total);
-  }, [conversations, getUnreadCount]);
+  // useEffect(() => {
+  //   const total = conversations.reduce((sum, conv) => {
+  //     return sum + getUnreadCount(conv.id);
+  //   }, 0);
+  //   // setTotalUnread(total);
+  // }, [conversations, getUnreadCount]);
 
   // Auto-close sidebar on mobile when chat is selected
   useEffect(() => {
@@ -42,15 +41,6 @@ const ChatDashboard = () => {
       socket.current.emit("setup", user);
     }
   }, [user]);
-
-  const handleGroupCreated = (groupData) => {
-    setShowCreateGroup(false);
-    addNotification({
-      type: "success",
-      title: "Group Created",
-      message: `${groupData.name} has been created successfully!`,
-    });
-  };
 
   return (
     <div className="min-h-screen transition-colors duration-200 dark:bg-gray-900 dark:text-white bg-gray-50 text-gray-900">
@@ -94,14 +84,6 @@ const ChatDashboard = () => {
           )}
         </div>
       </div>
-
-      {/* Create Group Modal */}
-      {showCreateGroup && (
-        <CreateGroupModal
-          onClose={() => setShowCreateGroup(false)}
-          onGroupCreated={handleGroupCreated}
-        />
-      )}
 
       {/* Toast Container */}
       <div className="fixed top-4 right-4 z-50">

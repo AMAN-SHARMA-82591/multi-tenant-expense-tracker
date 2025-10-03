@@ -4,7 +4,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useChat } from "../utils/contextApi";
 
 const Message = ({ message, showAvatar, isOwnMessage }) => {
-  const { darkMode, getUserById } = useChat();
+  const { getUserById } = useChat();
   const [showImagePreview, setShowImagePreview] = useState(false);
 
   const sender = getUserById(message.sender);
@@ -49,35 +49,19 @@ const Message = ({ message, showAvatar, isOwnMessage }) => {
     if (isFile) {
       return (
         <div className="max-w-xs">
-          <div
-            className={`p-3 rounded-lg border ${
-              darkMode
-                ? "border-gray-600 bg-gray-700"
-                : "border-gray-300 bg-gray-50"
-            }`}
-          >
+          <div className="p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700 border-gray-300 bg-gray-50">
             <div className="flex items-center space-x-3">
               <span className="text-2xl">{getFileIcon(message.fileName)}</span>
               <div className="flex-1 min-w-0">
-                <p
-                  className={`text-sm font-medium truncate ${
-                    darkMode ? "text-white" : "text-gray-900"
-                  }`}
-                >
+                <p className="text-sm font-medium truncate dark:text-white  text-gray-900">
                   {message.fileName}
                 </p>
-                <p
-                  className={`text-xs ${
-                    darkMode ? "text-gray-400" : "text-gray-500"
-                  }`}
-                >
+                <p className="text-xs dark:text-gray-400 text-gray-500">
                   {formatFileSize(message.fileSize)}
                 </p>
               </div>
               <button
-                className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 ${
-                  darkMode ? "text-gray-400" : "text-gray-600"
-                }`}
+                className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 dark:text-gray-400 text-gray-600"
                 title="Download file"
               >
                 <HiDownload className="w-4 h-4" />
@@ -143,11 +127,7 @@ const Message = ({ message, showAvatar, isOwnMessage }) => {
           >
             {/* Sender name for group chats */}
             {!isOwnMessage && showAvatar && message.type === "group" && (
-              <p
-                className={`text-xs font-medium mb-1 ${
-                  darkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
+              <p className="text-xs font-medium mb-1 dark:text-gray-400 text-gray-500">
                 {sender?.username}
               </p>
             )}
@@ -156,12 +136,8 @@ const Message = ({ message, showAvatar, isOwnMessage }) => {
             <div
               className={`px-4 py-2 rounded-2xl ${
                 isOwnMessage
-                  ? darkMode
-                    ? "bg-blue-600 text-white"
-                    : "bg-blue-500 text-white"
-                  : darkMode
-                  ? "bg-gray-700 text-white"
-                  : "bg-gray-200 text-gray-900"
+                  ? "dark:bg-blue-600 dark:text-white bg-blue-500 text-white"
+                  : "dark:bg-gray-700 dark:text-white bg-gray-200 text-gray-900"
               }`}
             >
               {renderMessageContent()}
@@ -173,20 +149,12 @@ const Message = ({ message, showAvatar, isOwnMessage }) => {
                 isOwnMessage ? "justify-end" : "justify-start"
               }`}
             >
-              <span
-                className={`text-xs ${
-                  darkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
+              <span className="text-xs dark:text-gray-400 text-gray-500">
                 {formatDistanceToNow(message.timestamp, { addSuffix: true })}
               </span>
               {renderReadReceipt()}
               {message.isEdited && (
-                <span
-                  className={`text-xs ${
-                    darkMode ? "text-gray-400" : "text-gray-500"
-                  }`}
-                >
+                <span className="text-xs dark:text-gray-400 text-gray-500">
                   (edited)
                 </span>
               )}
