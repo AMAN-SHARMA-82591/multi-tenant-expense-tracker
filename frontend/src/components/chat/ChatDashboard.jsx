@@ -1,23 +1,20 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 // import { toast } from "react-hot-toast";
-import { HiMenu, HiPlus, HiMoon, HiSun } from "react-icons/hi";
-import { io } from "socket.io-client";
+// import { HiMenu, HiPlus, HiMoon, HiSun } from "react-icons/hi";
 import ChatWindow from "./ChatWindow";
 import ChatSidebar from "./ChatSidebar";
-import CreateGroupModal from "./CreateGroupModal";
-import { useAuth, useChat } from "../utils/contextApi";
-import { useRef } from "react";
+// import CreateGroupModal from "./CreateGroupModal";
+import { useChat } from "../utils/contextApi";
 
 const ChatDashboard = () => {
   const {
     currentChat,
     toggleSidebar,
-    conversations,
+    // conversations,
     // getUnreadCount,
     // addNotification,
   } = useChat();
-  const { user } = useAuth();
-  const socket = useRef();
+  // const { user } = useAuth();
   // const [totalUnread, setTotalUnread] = useState(0);
 
   // Calculate total unread messages
@@ -34,13 +31,6 @@ const ChatDashboard = () => {
       toggleSidebar();
     }
   }, [currentChat, toggleSidebar]);
-
-  useEffect(() => {
-    if (user) {
-      socket.current = io(import.meta.env.VITE_APP_BACKEND_HOST);
-      socket.current.emit("setup", user);
-    }
-  }, [user]);
 
   return (
     <div className="min-h-screen transition-colors duration-200 dark:bg-gray-900 dark:text-white bg-gray-50 text-gray-900">

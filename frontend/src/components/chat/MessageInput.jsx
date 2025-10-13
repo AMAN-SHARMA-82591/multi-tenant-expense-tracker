@@ -8,7 +8,7 @@ import {
 import FileUpload from "./FileUpload";
 import { useChat } from "../utils/contextApi";
 
-const MessageInput = ({ chatId, onTyping }) => {
+const MessageInput = ({ conversationId, onTyping }) => {
   const { sendMessage } = useChat();
   const [message, setMessage] = useState("");
   const [showFileUpload, setShowFileUpload] = useState(false);
@@ -51,7 +51,7 @@ const MessageInput = ({ chatId, onTyping }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (message.trim()) {
-      sendMessage(chatId, message.trim());
+      sendMessage(conversationId, message.trim());
       setMessage("");
       setIsTyping(false);
       onTyping?.(false);
@@ -77,7 +77,7 @@ const MessageInput = ({ chatId, onTyping }) => {
 
   const handleFileUpload = (fileData) => {
     sendMessage(
-      chatId,
+      conversationId,
       fileData.content || "Sent a file",
       fileData.type,
       fileData
@@ -109,12 +109,13 @@ const MessageInput = ({ chatId, onTyping }) => {
       )}
 
       {/* Message Input Form */}
-      <form onSubmit={handleSubmit} className="flex items-end space-x-2">
+      <form onSubmit={handleSubmit} className="flex items-start space-x-2">
         {/* File Upload Button */}
         <button
           type="button"
+          disabled
           onClick={() => fileInputRef.current?.click()}
-          className="p-2 rounded-lg transition-colors hover:bg-gray-100 text-gray-600 dark:hover:bg-gray-700 dark:text-gray-300"
+          className="p-2 rounded-lg transition-colors disabled:text-gray-400 disabled:hover:bg-gray-800 hover:bg-gray-100 text-gray-600 dark:hover:bg-gray-700 dark:text-gray-300"
           title="Attach file"
         >
           <HiPaperClip className="w-5 h-5" />
@@ -185,7 +186,7 @@ const MessageInput = ({ chatId, onTyping }) => {
         <button
           type="submit"
           disabled={!message.trim()}
-          className={`p-2 rounded-lg transition-colors ${
+          className={`p-3 rounded-lg transition-colors ${
             message.trim()
               ? "dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white bg-blue-500 hover:bg-blue-600 text-white"
               : "dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed bg-gray-200 text-gray-400"

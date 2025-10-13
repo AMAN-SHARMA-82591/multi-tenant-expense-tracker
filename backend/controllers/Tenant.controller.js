@@ -14,6 +14,7 @@ import ExpenseModel from "../model/Expense.model.js";
 import TenantMembershipModel from "../model/TenantMembership.model.js";
 import GroupInviteNotificationModel from "../model/Notification.model.js";
 import { ObjectId } from "../utils/constants.js";
+import ConversationModel from "../model/Conversation.model.js";
 
 export const getTenant = asyncHandler(async (req, res) => {
   const tenantDetails = await TenantModel.findOne({
@@ -95,7 +96,7 @@ export const getTenantUsers = asyncHandler(async (req, res) => {
     {
       $match: {
         tenantId: ObjectId(tenantId),
-        userId: { $ne: ObjectId(userId) },
+        // userId: { $ne: ObjectId(userId) },
       },
     },
     {
@@ -166,6 +167,10 @@ export const createTenant = asyncHandler(async (req, res) => {
     tenantId: newTenant._id,
     userId: req.uid,
     role: "owner",
+  });
+  await ConversationModel.create({
+    tenantId: newTenant._id,
+    lastMessage: null,
   });
   return res.status(201).json({
     success: true,

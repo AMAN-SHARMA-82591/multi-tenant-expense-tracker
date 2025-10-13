@@ -1,17 +1,12 @@
 import { HiUserGroup } from "react-icons/hi";
 import { formatDistanceToNow } from "date-fns";
 import { useChat } from "../utils/contextApi";
+import Avatar from "@mui/material/Avatar";
 
-const ConversationItem = ({
-  conversation,
-  displayName,
-  avatar,
-  subtitle,
-  unreadCount,
-}) => {
+const ConversationItem = ({ conversation, subtitle, unreadCount }) => {
   const { setCurrentChat, currentChat } = useChat();
 
-  const isSelected = currentChat?.id === conversation.id;
+  const isSelected = currentChat?._id === conversation._id;
   const lastMessageTime = conversation.lastMessage?.timestamp;
 
   const handleClick = () => {
@@ -43,6 +38,11 @@ const ConversationItem = ({
       <div className="flex items-center space-x-3">
         {/* Avatar */}
         <div className="relative flex-shrink-0">
+          <Avatar>
+            <HiUserGroup />
+          </Avatar>
+        </div>
+        {/* <div className="relative flex-shrink-0">
           {conversation.type === "group" ? (
             <div className="w-12 h-12 rounded-lg flex items-center justify-center dark:bg-gray-600 bg-gray-200">
               <HiUserGroup className="w-6 h-6 dark:text-gray-400 text-gray-600" />
@@ -54,7 +54,6 @@ const ConversationItem = ({
                 alt={displayName}
                 className="w-12 h-12 rounded-full object-cover"
               />
-              {/* Online status indicator for direct chats */}
               {conversation.status && (
                 <div
                   className={`absolute -bottom-1 -right-1 dark:border-gray-800 border-white w-3 h-3 rounded-full border-2 ${getStatusColor(
@@ -64,7 +63,7 @@ const ConversationItem = ({
               )}
             </div>
           )}
-        </div>
+        </div> */}
 
         {/* Content */}
         <div className="flex-1 min-w-0">
@@ -74,7 +73,7 @@ const ConversationItem = ({
                 isSelected ? "text-white" : "dark:text-white text-gray-900"
               }`}
             >
-              {displayName}
+              {conversation.tenant.name}
             </h4>
             {lastMessageTime && (
               <span

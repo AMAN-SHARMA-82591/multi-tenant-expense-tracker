@@ -1,13 +1,21 @@
-import { useReducer } from "react";
-import {
-  chatActionTypes,
-  chatInitialState,
-} from "../components/utils/constants";
-import { ChatContext } from "../components/utils/contextApi";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { io } from "socket.io-client";
+import { chatActionTypes } from "../components/utils/constants";
+import { ChatContext, useAuth } from "../components/utils/contextApi";
+import axiosInstance from "../components/utils/AxiosInstance";
 
 // Reducer
 function chatReducer(state, action) {
   switch (action.type) {
+    case chatActionTypes.SET_CONVERSATIONS: {
+      const { groups, users, conversations } = action.payload;
+      return {
+        ...state,
+        groups,
+        users,
+        conversations,
+      };
+    }
     case chatActionTypes.SET_CURRENT_CHAT:
       return {
         ...state,
@@ -57,12 +65,12 @@ function chatReducer(state, action) {
         sidebarOpen: !state.sidebarOpen,
       };
 
-    case chatActionTypes.CREATE_GROUP:
-      return {
-        ...state,
-        groups: [...state.groups, action.payload],
-        conversations: [...state.conversations, action.payload],
-      };
+    // case chatActionTypes.CREATE_GROUP:
+    //   return {
+    //     ...state,
+    //     groups: [...state.groups, action.payload],
+    //     conversations: [...state.conversations, action.payload],
+    //   };
 
     case chatActionTypes.ADD_NOTIFICATION:
       return {
@@ -74,7 +82,7 @@ function chatReducer(state, action) {
       return {
         ...state,
         notifications: state.notifications.filter(
-          (n) => n.id !== action.payload
+          (n) => n._id !== action.payload
         ),
       };
 
@@ -107,49 +115,132 @@ function chatReducer(state, action) {
 
 // Provider component
 export function ChatProvider({ children }) {
-  const [state, dispatch] = useReducer(chatReducer, chatInitialState);
+  const { user } = useAuth();
+  const socket = useRef(null);
+  const previousChatId = useRef(null);
+  const initialState = {
+    currentUser: user,
+    users: [],
+    groups: [],
+    messages: {},
+    currentChat: null,
+    conversations: [],
+    typingUsers: {},
+    sidebarOpen: true,
+    unreadCounts: {},
+    notifications: [],
+  };
+  const [initialLoading, setInitialLoading] = useState(false);
+  const [state, dispatch] = useReducer(chatReducer, initialState);
+
+  useEffect(() => {
+    if (!user) return;
+    socket.current = io(import.meta.env.VITE_APP_BACKEND_HOST);
+
+    socket.current.on("connect", () => {
+      socket.current.emit("setup", user);
+    });
+
+    // Listen for incoming messages
+    socket.current.on("message", (data) => {
+      dispatch({
+        type: chatActionTypes.ADD_MESSAGE,
+        payload: { chatId: data?.message?.conversation, message: data.message },
+      });
+    });
+
+    // Listen for typing events, etc.
+
+    return () => {
+      socket.current.disconnect();
+    };
+  }, [user]);
+
+  const fetchInitialData = useCallback(async () => {
+    try {
+      // Fetch groups
+      const groupRes = await axiosInstance.get("/conversation");
+      const groups = groupRes.data?.data || [];
+
+      // Fetch users (adjust endpoint as needed)
+      const userRes = await axiosInstance.get("/user");
+      const users = userRes.data?.users || [];
+      dispatch({
+        type: chatActionTypes.SET_CONVERSATIONS,
+        payload: {
+          groups,
+          users,
+          conversations: [
+            ...groups,
+            ...users.filter((u) => u._id !== user?._id),
+          ],
+        },
+      });
+      // Fetch messages if needed (or load when chat opens)
+      // const messagesRes = await axiosInstance.get("/messages");
+      // const messages = messagesRes.data?.messages || {};
+      setInitialLoading(true);
+    } catch (err) {
+      // Handle error
+      setInitialLoading(true);
+      console.error(err);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchInitialData();
+  }, [fetchInitialData]);
 
   // Actions
   const actions = {
     setCurrentChat: (chat) => {
       dispatch({ type: chatActionTypes.SET_CURRENT_CHAT, payload: chat });
+      if (previousChatId.current && socket.current) {
+        socket.current.emit("leaveRoom", previousChatId.current);
+      }
+      if (chat && socket.current) {
+        socket.current.emit("joinRoom", chat?.conversation?._id);
+        previousChatId.current = chat?.conversation?._id;
+      }
+
       // Mark messages as read when opening chat
       if (chat) {
         dispatch({
           type: chatActionTypes.MARK_AS_READ,
-          payload: { chatId: chat.id },
+          payload: { chatId: chat?.conversation?._id },
         });
       }
     },
 
-    sendMessage: (chatId, content, type = "text", fileData = null) => {
+    sendMessage: (conversationId, content, type = "text", fileData = null) => {
       const message = {
-        id: `m${Date.now()}`,
+        conversationId: conversationId,
         content,
         sender: state.currentUser.id,
-        timestamp: new Date(),
         type,
-        readBy: [state.currentUser.id],
         ...fileData,
       };
-
-      dispatch({
-        type: chatActionTypes.ADD_MESSAGE,
-        payload: { chatId, message },
-      });
+      socket.current.emit("sendMessage", message);
+      // dispatch({
+      //   type: chatActionTypes.ADD_MESSAGE,
+      //   payload: {
+      //     chatId: conversationId,
+      //     message: { ...message, createdAt: new Date() },
+      //   },
+      // });
 
       // Add notification for other users
-      const chat = state.conversations.find((c) => c.id === chatId);
-      if (chat && chat.type === "group") {
-        chat.members.forEach((memberId) => {
-          if (memberId !== state.currentUser.id) {
-            dispatch({
-              type: chatActionTypes.UPDATE_UNREAD_COUNT,
-              payload: { chatId, count: (state.unreadCounts[chatId] || 0) + 1 },
-            });
-          }
-        });
-      }
+      // const chat = state.conversations.find((c) => c._id === chatId);
+      // if (chat && chat.type === "group") {
+      //   chat.members.forEach((memberId) => {
+      //     if (memberId !== state.currentUser._id) {
+      //       dispatch({
+      //         type: chatActionTypes.UPDATE_UNREAD_COUNT,
+      //         payload: { chatId, count: (state.unreadCounts[chatId] || 0) + 1 },
+      //       });
+      //     }
+      //   });
+      // }
     },
 
     setTyping: (chatId, userId) => {
@@ -170,37 +261,37 @@ export function ChatProvider({ children }) {
       dispatch({ type: chatActionTypes.TOGGLE_SIDEBAR });
     },
 
-    createGroup: (groupData) => {
-      const newGroup = {
-        id: `g${Date.now()}`,
-        ...groupData,
-        type: "group",
-        lastMessage: {
-          content: "Group created",
-          sender: state.currentUser.id,
-          timestamp: new Date(),
-          unreadCount: 0,
-        },
-      };
+    // createGroup: (groupData) => {
+    //   const newGroup = {
+    //     id: `g${Date.now()}`,
+    //     ...groupData,
+    //     type: "group",
+    //     lastMessage: {
+    //       content: "Group created",
+    //       sender: state.currentUser._id,
+    //       timestamp: new Date(),
+    //       unreadCount: 0,
+    //     },
+    //   };
 
-      dispatch({ type: chatActionTypes.CREATE_GROUP, payload: newGroup });
+    //   dispatch({ type: chatActionTypes.CREATE_GROUP, payload: newGroup });
 
-      // Initialize empty messages array
-      dispatch({
-        type: chatActionTypes.ADD_MESSAGE,
-        payload: {
-          chatId: newGroup.id,
-          message: {
-            id: `m${Date.now()}`,
-            content: "Group created",
-            sender: state.currentUser.id,
-            timestamp: new Date(),
-            type: "text",
-            readBy: [state.currentUser.id],
-          },
-        },
-      });
-    },
+    //   // Initialize empty messages array
+    //   dispatch({
+    //     type: chatActionTypes.ADD_MESSAGE,
+    //     payload: {
+    //       chatId: newGroup._id,
+    //       message: {
+    //         id: `m${Date.now()}`,
+    //         content: "Group created",
+    //         sender: state.currentUser._id,
+    //         timestamp: new Date(),
+    //         type: "text",
+    //         readBy: [state.currentUser._id],
+    //       },
+    //     },
+    //   });
+    // },
 
     addNotification: (notification) => {
       const id = Date.now();
@@ -219,17 +310,17 @@ export function ChatProvider({ children }) {
   // Get current chat messages
   const getCurrentChatMessages = () => {
     if (!state.currentChat) return [];
-    return state.messages[state.currentChat.id] || [];
+    return state.messages[state.currentChat?.conversation?._id] || [];
   };
 
   // Get user by ID
   const getUserById = (userId) => {
-    return state.users.find((user) => user.id === userId);
+    return state.users.find((user) => user._id === userId);
   };
 
   // Get conversation by ID
   const getConversationById = (conversationId) => {
-    return state.conversations.find((conv) => conv.id === conversationId);
+    return state.conversations.find((conv) => conv._id === conversationId);
   };
 
   // Check if user is typing
@@ -260,13 +351,13 @@ export function ChatProvider({ children }) {
     },
 
     sendTyping: (chatId) => {
-      actions.setTyping(chatId, state.currentUser.id);
+      actions.setTyping(chatId, state.currentUser._id);
       // Placeholder for Socket.IO typing event
       console.log(`Typing in chat: ${chatId}`);
     },
 
     stopTyping: (chatId) => {
-      actions.removeTyping(chatId, state.currentUser.id);
+      actions.removeTyping(chatId, state.currentUser._id);
       // Placeholder for Socket.IO stop typing event
       console.log(`Stopped typing in chat: ${chatId}`);
     },
@@ -282,6 +373,12 @@ export function ChatProvider({ children }) {
     getUnreadCount,
     socketActions,
   };
+
+  if (!initialLoading) {
+    return (
+      <div className="h-screen dark:bg-gray-900 bg-white">Loading chat...</div>
+    );
+  }
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 }

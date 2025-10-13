@@ -5,22 +5,22 @@ import { useChat } from "../utils/contextApi";
 
 const MessageList = ({ messages, chatId }) => {
   const { isUserTyping, currentUser } = useChat();
-  const messagesEndRef = useRef(null);
+  // const messagesEndRef = useRef(null);
   const scrollContainerRef = useRef(null);
 
   // Auto-scroll to bottom on new messages
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
+  // useEffect(() => {
+  //   if (messagesEndRef.current) {
+  //     messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+  //   }
+  // }, [messages]);
 
   // Group messages by date
   const groupMessagesByDate = (messages) => {
     const groups = {};
 
     messages.forEach((message) => {
-      const date = new Date(message.timestamp).toDateString();
+      const date = new Date(message.createdAt).toDateString();
       if (!groups[date]) {
         groups[date] = [];
       }
@@ -102,7 +102,7 @@ const MessageList = ({ messages, chatId }) => {
 
           return (
             <Message
-              key={message.id}
+              key={message._id}
               message={message}
               showAvatar={showAvatar}
               isOwnMessage={isOwnMessage}
@@ -132,7 +132,7 @@ const MessageList = ({ messages, chatId }) => {
       {isUserTyping(chatId, currentUser.id) && <TypingIndicator />}
 
       {/* Scroll anchor */}
-      <div ref={messagesEndRef} />
+      {/* <div ref={messagesEndRef} /> */}
     </div>
   );
 };

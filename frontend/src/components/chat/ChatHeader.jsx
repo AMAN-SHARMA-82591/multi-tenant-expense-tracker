@@ -83,7 +83,7 @@ const ChatHeader = ({ chat }) => {
       {/* Actions */}
       <div className="flex items-center space-x-2">
         {/* Call buttons (placeholder for future functionality) */}
-        <button
+        {/* <button
           className="p-2 rounded-lg transition-colors dark:hover:bg-gray-700 dark:text-gray-300 hover:bg-gray-100 text-gray-600"
           title="Voice call"
         >
@@ -95,12 +95,12 @@ const ChatHeader = ({ chat }) => {
           title="Video call"
         >
           <HiVideoCamera className="w-5 h-5" />
-        </button>
+        </button> */}
 
         {/* Menu */}
         <div className="relative">
           <button
-            onClick={() => setShowMenu(!showMenu)}
+            // onClick={() => setShowMenu(!showMenu)}
             className="p-2 rounded-lg transition-colors dark:hover:bg-gray-700 dark:text-gray-300 hover:bg-gray-100 text-gray-600"
           >
             <HiDotsVertical className="w-5 h-5" />

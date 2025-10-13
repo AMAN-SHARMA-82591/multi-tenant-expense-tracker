@@ -8,7 +8,7 @@ router.get(
   "/",
   authenticationMiddleware,
   asyncHandler(async (req, res) => {
-    return res.end("Users List");
+    return res.status(200).json({ users: [] });
   })
 );
 export default router;

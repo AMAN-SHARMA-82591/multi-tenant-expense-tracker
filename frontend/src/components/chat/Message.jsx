@@ -8,9 +8,8 @@ const Message = ({ message, showAvatar, isOwnMessage }) => {
   const [showImagePreview, setShowImagePreview] = useState(false);
 
   const sender = getUserById(message.sender);
-  const isImage = message.messageType === "image";
-  const isFile =
-    message.messageType === "file" || message.messageType === "pdf";
+  const isImage = message.type === "image";
+  const isFile = message.type === "file" || message.type === "pdf";
 
   const formatFileSize = (bytes) => {
     if (bytes === 0) return "0 Bytes";
@@ -150,7 +149,7 @@ const Message = ({ message, showAvatar, isOwnMessage }) => {
               }`}
             >
               <span className="text-xs dark:text-gray-400 text-gray-500">
-                {formatDistanceToNow(message.timestamp, { addSuffix: true })}
+                {formatDistanceToNow(message.createdAt, { addSuffix: true })}
               </span>
               {renderReadReceipt()}
               {message.isEdited && (
