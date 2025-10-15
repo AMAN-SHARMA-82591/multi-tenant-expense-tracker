@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axiosInstance from "../utils/AxiosInstance";
 import { createExpenseSchema } from "../utils/formValidate";
+import SubmitButton from "../common/SubmitButton";
 
 const inititalValues = {
   title: "",
@@ -10,9 +11,9 @@ const inititalValues = {
 };
 
 const NewExpenseDialog = ({
-  paginate,
   openCreateDialog,
   fetchExpenseList,
+  activeTenantGroupId,
   handleOpenCreateDialog,
 }) => {
   const [formData, setFormData] = useState(inititalValues);
@@ -23,14 +24,14 @@ const NewExpenseDialog = ({
     setPending(true);
     try {
       await createExpenseSchema.validate(formData, { abortEarly: false });
-      const response = await axiosInstance.post("/expense", {
+      const response = await axiosInstance.post(`/expense/create`, {
         ...formData,
+        tenantId: activeTenantGroupId,
         amount: parseFloat(formData.amount),
         date: new Date(formData.date).toISOString(),
       });
       if (response.data.success) {
-        paginate(1);
-        fetchExpenseList();
+        fetchExpenseList(activeTenantGroupId, 1);
         handleOpenCreateDialog();
         setFormData(inititalValues);
       } else {
@@ -39,6 +40,9 @@ const NewExpenseDialog = ({
     } catch (error) {
       if (error.inner) {
         const messages = error.inner.map((err) => err.message).join("\n");
+        alert(messages);
+      } else if (error.response) {
+        const messages = error.response?.data?.message || error.message;
         alert(messages);
       } else {
         alert(error.message);
@@ -57,22 +61,6 @@ const NewExpenseDialog = ({
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
-  function SubmitButton() {
-    return (
-      <button
-        type="submit"
-        disabled={pending}
-        className={
-          pending
-            ? "bg-blue-300 text-white px-4 py-2 rounded-mdtransition-colors"
-            : "bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
-        }
-      >
-        {pending ? "Submitting..." : "Submit"}
-      </button>
-    );
-  }
 
   return (
     <div
@@ -140,7 +128,7 @@ const NewExpenseDialog = ({
             >
               Cancel
             </button>
-            <SubmitButton />
+            <SubmitButton pending={pending} />
           </div>
         </form>
       </div>

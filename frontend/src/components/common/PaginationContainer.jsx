@@ -10,7 +10,7 @@ export default function PaginationContainer({
           <button
             onClick={() => paginatefn(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50"
+            className="px-3 py-2 leading-tight text-gray-500 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-l-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700 disabled:opacity-50"
           >
             Previous
           </button>
@@ -21,9 +21,9 @@ export default function PaginationContainer({
               onClick={() => paginatefn(number + 1)}
               className={`px-3 py-2 leading-tight ${
                 currentPage === number + 1
-                  ? "text-blue-600 bg-blue-50 border-blue-300"
-                  : "text-gray-500 bg-white border border-gray-300"
-              } hover:bg-gray-100 hover:text-gray-700`}
+                  ? "text-blue-600 bg-blue-50 dark:bg-blue-900 border-blue-300"
+                  : "text-gray-500 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700"
+              } hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700`}
             >
               {number + 1}
             </button>
@@ -33,7 +33,7 @@ export default function PaginationContainer({
           <button
             onClick={() => paginatefn(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50"
+            className="px-3 py-2 leading-tight text-gray-500 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-r-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700 disabled:opacity-50"
           >
             Next
           </button>

@@ -44,7 +44,7 @@ export const createExpenseSchema = yup.object().shape({
     .string()
     .trim()
     .required("Category is required")
-    .min(3, "Title must be at least 3 characters")
+    .min(3, "Category must be at least 3 characters")
     .max(100, "Category must be at most 100 characters"),
 
   amount: yup
@@ -60,4 +60,34 @@ export const createExpenseSchema = yup.object().shape({
     .required("Date is required")
     .min(new Date("2025-01-01"), "Date cannot be before January 1, 2025")
     .max(new Date(), `Date cannot be after ${new Date().toDateString()}`),
+});
+
+export const createTenantGroupSchema = yup.object().shape({
+  name: yup
+    .string()
+    .trim()
+    .required("Name is required")
+    .min(3, "Name must be at least 3 characters")
+    .max(100, "Name must be at most 100 characters"),
+  description: yup
+    .string()
+    .trim()
+    .required("Description is required")
+    .min(3, "Description must be at least 3 characters")
+    .max(100, "Description must be at most 100 characters"),
+});
+
+export const tenantGroupInviteSchema = yup.object().shape({
+  email: yup
+    .string()
+    .email()
+    .required("Email Field is required")
+    .trim()
+    .required("Email is required"),
+  message: yup
+    .string()
+    .trim()
+    .required("Message is required")
+    .min(3, "Message must be at least 3 characters")
+    .max(200, "Message must be at most 200 characters"),
 });

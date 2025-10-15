@@ -1,7 +1,7 @@
 import { z } from "zod/v4";
+import { isValidObjectId } from "../utils/constants.js";
 
-// title, category, amount, date
-export const expenseSchema = z.object({
+export const personalExpenseSchema = z.object({
   title: z
     .string()
     .trim()
@@ -21,7 +21,6 @@ export const expenseSchema = z.object({
     })
     .min(1, "Amount must be greater than 0")
     .max(100000, "Amount must be less than $1,00,000"),
-
   date: z.string().refine(
     (val) => {
       const parsed = new Date(val);
@@ -37,4 +36,10 @@ export const expenseSchema = z.object({
       message: "Date must be between January 1, 2025 and today",
     }
   ),
+  tenantId: z.union([
+    z.string().refine((val) => isValidObjectId(val), {
+      message: "Invalid tenantId format",
+    }),
+    z.literal(null),
+  ]),
 });

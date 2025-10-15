@@ -1,15 +1,15 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { MONTH } from "../utils/constants";
 import GenerateReport from "./GenerateReport";
 import axiosInstance from "../utils/AxiosInstance";
+import Popover from "@mui/material/Popover";
 
 const ReportDropdown = () => {
+  const [anchorEl, setAnchorEl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [reportSummary, setReportSummary] = useState(null);
   const [reportDialog, setOpenReportDialog] = useState(false);
   const [isReportDropdownOpen, setIsReportDropdownOpen] = useState(false);
-
-  const dropdownRef = useRef(null);
 
   const getPastMonths = () => {
     const currentMonth = new Date().getMonth();
@@ -39,11 +39,17 @@ const ReportDropdown = () => {
     setIsReportDropdownOpen(false);
   };
 
+  const handleToggleDropdown = (event) => {
+    event.preventDefault();
+    setAnchorEl(event.currentTarget);
+    setIsReportDropdownOpen(true);
+  };
+
   return (
     <>
       <div className="relative inline-block text-left">
         <button
-          onClick={() => setIsReportDropdownOpen(!isReportDropdownOpen)}
+          onClick={handleToggleDropdown}
           className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
         >
           Generate Report
@@ -61,10 +67,40 @@ const ReportDropdown = () => {
             />
           </svg>
         </button>
-        {isReportDropdownOpen && (
+        <Popover
+          open={isReportDropdownOpen}
+          anchorEl={anchorEl}
+          onClose={() => {
+            setIsReportDropdownOpen(false);
+            setAnchorEl(null);
+          }}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "center",
+          }}
+        >
+          <div
+            className="py-1 w-full"
+            role="menu"
+            aria-orientation="vertical"
+            aria-labelledby="options-menu"
+          >
+            {getPastMonths().map((month, index) => (
+              <div
+                key={index}
+                onClick={() => handleGenerateReport(index + 1)}
+                className="block font-bold text-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 cursor-pointer"
+                role="menuitem"
+              >
+                {month}
+              </div>
+            ))}
+          </div>
+        </Popover>
+        {/* {isReportDropdownOpen && (
           <div
             ref={dropdownRef}
-            className="origin-top-right absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
+            className="origin-top-right absolute right-0 mt-2 w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
           >
             <div
               className="py-1"
@@ -84,7 +120,7 @@ const ReportDropdown = () => {
               ))}
             </div>
           </div>
-        )}
+        )} */}
         {reportDialog && (
           <GenerateReport
             isLoading={isLoading}

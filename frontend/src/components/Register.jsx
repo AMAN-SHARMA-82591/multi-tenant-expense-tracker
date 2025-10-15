@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router";
 import { useAuth } from "./utils/contextApi";
 import axiosInstance from "./utils/AxiosInstance";
 import { registerSchema } from "./utils/formValidate";
+import DarkModeToggle from "./common/DarkModeToggle";
+import { toastError } from "./common/ToastContainer";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -21,7 +23,7 @@ function Register() {
       await registerSchema.validate(formData, { abortEarly: false });
       const response = await axiosInstance.post("/auth/sign-up", formData);
       if (response.error) {
-        alert(response.error);
+        toastError(response.error);
       } else {
         login(response.data);
         navigate("/");
@@ -29,9 +31,12 @@ function Register() {
     } catch (error) {
       if (error.inner) {
         const messages = error.inner.map((err) => err.message).join("\n");
-        alert(messages);
+        toastError(messages);
+      } else if (error.response) {
+        const messages = error.response?.data?.message || error.message;
+        toastError(messages);
       } else {
-        alert(error.message);
+        toastError(error.message);
       }
     } finally {
       setLoading(false);
@@ -44,9 +49,14 @@ function Register() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
-        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
+    <div className="relative flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-800">
+      <DarkModeToggle
+        style={{ position: "absolute", top: "1rem", right: "1rem" }}
+      />
+      <div className="bg-white dark:bg-gray-700 p-8 rounded-lg shadow-md w-full max-w-sm">
+        <h2 className="text-2xl font-bold mb-6 text-center text-black dark:text-white">
+          Register
+        </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <input
@@ -56,7 +66,7 @@ function Register() {
               placeholder="Username"
               value={formData.username}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white dark:border-1-white"
             />
           </div>
           <div>
@@ -68,7 +78,7 @@ function Register() {
               autoComplete="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white dark:border-1-white"
             />
           </div>
           <div>
@@ -80,7 +90,7 @@ function Register() {
               onChange={handleChange}
               value={formData.password}
               autoComplete="current-password"
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white dark:border-1-white"
             />
           </div>
           <button
@@ -95,9 +105,12 @@ function Register() {
             {!loading ? "Register" : "loading"}
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-600">
+        <p className="mt-4 text-center text-sm text-gray-800 dark:text-gray-200">
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-500 hover:underline">
+          <Link
+            to="/login"
+            className="text-blue-700 dark:text-sky-300 hover:underline"
+          >
             Login here
           </Link>
         </p>

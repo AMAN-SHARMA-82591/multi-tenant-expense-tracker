@@ -1,12 +1,25 @@
 import { useCallback, useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import { AuthContext } from "../utils/contextApi";
-import { setLogoutHandler } from "../utils/AxiosInstance";
-import { isTokenExpired } from "../utils/auth";
+import { AuthContext } from "../components/utils/contextApi";
+import { setLogoutHandler } from "../components/utils/AxiosInstance";
+import { isTokenExpired } from "../components/utils/auth";
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [darkMode, setDarkMode] = useState(() => {
+    const savedMode = localStorage.getItem("darkMode");
+    return savedMode ? JSON.parse(savedMode) : false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("darkMode", JSON.stringify(darkMode));
+    if (darkMode) {
+      document.body.classList.add("dark");
+    } else {
+      document.body.classList.remove("dark");
+    }
+  }, [darkMode]);
 
   const login = (userData) => {
     const token = userData.token;
@@ -19,6 +32,10 @@ const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem("token");
   }, []);
+
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => !prev);
+  };
 
   useEffect(() => {
     setLogoutHandler(logout);
@@ -43,11 +60,16 @@ const AuthProvider = ({ children }) => {
     );
   }
 
-  return (
-    <AuthContext.Provider value={{ isLoading, user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = {
+    user,
+    login,
+    logout,
+    darkMode,
+    isLoading,
+    toggleDarkMode,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export default AuthProvider;
